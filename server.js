@@ -25,16 +25,16 @@ app.post('/submit', async (req, res) => {
   console.log(userData);  // Log the user data
 
   try {
-    const chatCompletion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{"role": "user", "content": "Hello!"}],
-    });
+    // const chatCompletion = await openai.chat.completions.create({
+    //   model: "gpt-3.5-turbo",
+    //   messages: [{"role": "user", "content": "Hello!"}],
+    // });
 
     // Send a response back to the frontend
     res.json({ 
-      receivedData: userData, 
+      receivedData: userData.inputs[0], 
       message: "Data received successfully!", 
-      openaiResult: chatCompletion.choices[0].message 
+      // openaiResult: chatCompletion.choices[0].message 
     });
   } catch (error) {
     console.error('OpenAI API error:', error);
