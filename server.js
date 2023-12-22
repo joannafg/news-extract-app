@@ -51,9 +51,10 @@ app.post('/submit', async (req, res) => {
       throw new Error('Failed to scrape content or content is empty.');
     }
 
+    const translationAndSummarizationPrompt = `Translate the following text to English and then provide a summary:\n\n${scrapedContent}`;
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
-      messages: [{"role": "user", "content": "the news article might be in English or Chinese. summarize this news article, news article link is:" + scrapedContent}],
+      messages: [{"role": "user", "content": translationAndSummarizationPrompt}],
     });
 
     // Send a response back to the frontend
