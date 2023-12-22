@@ -1,15 +1,14 @@
-//app-name: pacific-stream-59101
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { OpenAIApi } from 'openai';
 
-import OpenAI from 'openai';
+dotenv.config();
 
-const openai = new OpenAI({
+const app = express();
+const openai = new OpenAIApi({
   apiKey: process.env.OPENAI_API_KEY 
 });
-
-const express = require('express');
-const app = express();
-const cors = require('cors');
-require('dotenv').config();
 
 app.use(cors());
 app.use(express.json());
@@ -26,14 +25,6 @@ app.post('/submit', async (req, res) => {
   console.log(userData);  // Log the user data
 
   try {
-    // Call OpenAI's Chat API
-    // const openaiResponse = await openai.createChatCompletion({
-    //   model: "gpt-3.5-turbo", // Using the ChatGPT model
-    //   messages: [
-    //     {"role": "system", "content": "what time is it now?"},
-    //   ]
-    // });
-
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{"role": "user", "content": "Hello!"}],
