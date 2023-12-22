@@ -58,6 +58,7 @@ app.post('/submit', async (req, res) => {
 
     // Send a response back to the frontend
     res.json({ 
+      scrapedContent: scrapedContent, 
       receivedData: userData.inputs[0], 
       message: "Data received successfully!", 
       openaiResult: chatCompletion.choices[0].message 
