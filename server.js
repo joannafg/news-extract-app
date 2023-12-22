@@ -36,6 +36,15 @@ const scrapeContent = async (url) => {
   }
 };
 
+// Function to clean and truncate text
+const cleanAndTruncateText = (text, maxChars) => {
+  // Remove irrelevant characters using regular expression
+  let cleanedText = text.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+
+  // Truncate to approximate token limit
+  return cleanedText.length > maxChars ? cleanedText.slice(0, maxChars) + '...' : cleanedText;
+};
+
 
 // Test route
 app.get('/', (req, res) => {
@@ -52,7 +61,9 @@ app.post('/submit', async (req, res) => {
       throw new Error('Failed to scrape content or content is empty.');
     }
 
-    const translationAndSummarizationPrompt = `Translate the following text to English and then provide a summary:\n\n${scrapedContent}`;
+    const preparedContent = cleanAndTruncateText(scrapedContent, 1000);
+
+    const translationAndSummarizationPrompt = `Translate the following text to English and then provide a summary:\n\n${preparedContent}`;
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{"role": "user", "content": translationAndSummarizationPrompt}],
