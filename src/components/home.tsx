@@ -15,13 +15,19 @@ const Home: React.FC = () => {
 
     const fetchMessage = async () => {
         try {
-            const response = await axios.get('https://pacific-stream-59101-283446563bde.herokuapp.com/');
-            setMessage(response.data);
+            const payload = {
+                inputs: arr.map(item => item.value)
+            };
+            const response = await axios.post('https://pacific-stream-59101-283446563bde.herokuapp.com/submit', payload);
+
+            // Update the message to include the echoed back data
+            setMessage(`Response: ${response.data.message}. Data received: ${JSON.stringify(response.data.receivedData)}`);
         } catch (error) {
-            console.error('Error fetching data: ', error);
-            setMessage('Failed to load message');
+            console.error('Error sending data: ', error);
+            setMessage('Failed to send data');
         }
     };
+
 
     //https://stackoverflow.com/questions/66469913/how-to-add-input-field-dynamically-when-user-click-on-button-in-react-js
 
