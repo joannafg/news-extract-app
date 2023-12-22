@@ -30,9 +30,7 @@ app.post('/submit', async (req, res) => {
     const openaiResponse = await openai.createChatCompletion({
       model: "gpt-3.5-turbo", // Using the ChatGPT model
       messages: [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": userData.input} // User's input
-        // You can add more messages if needed for context
+        {"role": "system", "content": "what time is it now?"},
       ]
     });
 
