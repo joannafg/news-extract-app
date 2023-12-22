@@ -18,7 +18,7 @@ app.post('/submit', (req, res) => {
   console.log(userData);  // Process or log the data as needed
 
   // Send a response back to the frontend
-  res.json({ req: req.body, message: "Data received successfully!" });
+  res.json({ receivedData: req.body, message: "Data received successfully!" });
 });
 
 
