@@ -1,3 +1,5 @@
+# Run npm run deploy to build and deploy to GitHub Pages.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
