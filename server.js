@@ -36,6 +36,7 @@ app.post('/submit', async (req, res) => {
 
     res.json({ 
       originalData: userData, 
+      testing: "testing0", 
       openaiResponse: response.data.choices[0].text.trim()
     });
   } catch (error) {
