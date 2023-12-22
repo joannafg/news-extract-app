@@ -27,7 +27,7 @@ app.post('/submit', async (req, res) => {
   try {
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
-      messages: [{"role": "user", "content": "summarize this news article, news article link is:" + userData.inputs[0]}],
+      messages: [{"role": "user", "content": "the news article might be in English or Chinese. summarize this news article, news article link is:" + userData.inputs[0]}],
     });
 
     // Send a response back to the frontend
