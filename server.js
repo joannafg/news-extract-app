@@ -10,7 +10,7 @@ app.use(express.json()); // Middleware to parse JSON requests
 
 // Example route
 app.get('/', (req, res) => {
-  res.send('Hello World we0g8!');
+  res.send('Hello World we0g8! Successfully fetched from backend : )');
 });
 
 app.listen(PORT, () => {
