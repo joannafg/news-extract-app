@@ -1,17 +1,22 @@
 import React, { useState } from "react";
 import '../index.css';
 import { Input } from 'antd';
-import { Button, Flex } from 'antd';
+import { Button, Flex, Typography } from 'antd';
 import { Card, Space } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
-
-
+const { Text, Link } = Typography;
 
 const Home: React.FC = () => {
 
+    const initialOpenAIResult = {
+        role: '',
+        content: ''
+    };
+
     const [message, setMessage] = useState('');
+    const [openaiResult, setOpenaiResult] = useState(initialOpenAIResult);
 
     const fetchMessage = async () => {
         try {
@@ -21,7 +26,7 @@ const Home: React.FC = () => {
             const response = await axios.post('https://pacific-stream-59101-283446563bde.herokuapp.com/submit', payload);
             // const response = await axios.post('http://localhost:3001/submit', payload);
 
-            // Update the message to include the echoed back data
+            setOpenaiResult(response.data.openaiResult);
             setMessage(`Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
         } catch (error) {
             console.error('Error sending data: ', error);
@@ -106,7 +111,8 @@ const Home: React.FC = () => {
             })}
             <Button type="primary" onClick={(e) => addInput()}>Add</Button>
             <Button type="primary" onClick={(e) => fetchMessage()}>Submit</Button>
-            <h1>{message}</h1>
+            <Text>{message}</Text>
+            <Text>{openaiResult.content}</Text>
         </Space >);
 };
 
