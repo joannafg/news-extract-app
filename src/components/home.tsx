@@ -21,7 +21,7 @@ const Home: React.FC = () => {
             const response = await axios.post('https://pacific-stream-59101-283446563bde.herokuapp.com/submit', payload);
 
             // Update the message to include the echoed back data
-            setMessage(`Response: ${response.data.message}. Data received: ${JSON.stringify(response.data.receivedData)}`);
+            setMessage(`Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
         } catch (error) {
             console.error('Error sending data: ', error);
             setMessage('Failed to send data');
