@@ -1,9 +1,9 @@
 //app-name: pacific-stream-59101
 
-const { OpenAIApi } = require('openai');
+import OpenAI from 'openai';
 
-const openai = new OpenAIApi({
-  apiKey: process.env.OPENAI_API_KEY
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY 
 });
 
 const express = require('express');
@@ -27,18 +27,23 @@ app.post('/submit', async (req, res) => {
 
   try {
     // Call OpenAI's Chat API
-    const openaiResponse = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo", // Using the ChatGPT model
-      messages: [
-        {"role": "system", "content": "what time is it now?"},
-      ]
+    // const openaiResponse = await openai.createChatCompletion({
+    //   model: "gpt-3.5-turbo", // Using the ChatGPT model
+    //   messages: [
+    //     {"role": "system", "content": "what time is it now?"},
+    //   ]
+    // });
+
+    const chatCompletion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{"role": "user", "content": "Hello!"}],
     });
 
     // Send a response back to the frontend
     res.json({ 
       receivedData: userData, 
       message: "Data received successfully!", 
-      openaiResult: openaiResponse.data.choices[0].message.content 
+      openaiResult: chatCompletion.choices[0].message 
     });
   } catch (error) {
     console.error('OpenAI API error:', error);
