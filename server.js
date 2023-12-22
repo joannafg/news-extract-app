@@ -1,10 +1,11 @@
 //app-name: pacific-stream-59101
 
-const { Configuration, OpenAIApi } = require('openai');
+const { OpenAIApi } = require('openai');
 
-const openai = new OpenAIApi(new Configuration({
-  apiKey: process.env.OPENAI_API_KEY, // Ensure your API key is stored in .env file
-}));
+const openai = new OpenAIApi({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
 
 const express = require('express');
 const app = express();
