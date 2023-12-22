@@ -18,8 +18,8 @@ const Home: React.FC = () => {
             const payload = {
                 inputs: arr.map(item => item.value)
             };
-            // const response = await axios.post('https://pacific-stream-59101-283446563bde.herokuapp.com/submit', payload);
-            const response = await axios.post('http://localhost:3001/submit', payload);
+            const response = await axios.post('https://pacific-stream-59101-283446563bde.herokuapp.com/submit', payload);
+            // const response = await axios.post('http://localhost:3001/submit', payload);
 
             // Update the message to include the echoed back data
             setMessage(`Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
