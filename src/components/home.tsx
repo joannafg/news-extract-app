@@ -15,7 +15,7 @@ const Home: React.FC = () => {
 
     const fetchMessage = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/');
+            const response = await axios.get('https://pacific-stream-59101-283446563bde.herokuapp.com/');
             setMessage(response.data);
         } catch (error) {
             console.error('Error fetching data: ', error);
