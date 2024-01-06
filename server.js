@@ -45,6 +45,22 @@ const cleanAndTruncateText = (text, maxChars) => {
   return cleanedText.length > maxChars ? cleanedText.slice(0, maxChars) + '...' : cleanedText;
 };
 
+function parseAIResponse(response) {
+  // Split the response into lines
+  const lines = response.split('\n').map(line => line.trim());
+
+  // Extract information from each line
+  const parsedData = {
+    date: lines[1]?.split(': ')[1],
+    mediaName: lines[2]?.split(': ')[1],
+    title: lines[3]?.split(': ')[1],
+    articleSummary: lines.slice(4, lines.indexOf('5.')).join(' '),
+    mediaBackgroundSummary: lines.slice(lines.indexOf('5.') + 1).join(' ')
+  };
+
+  return parsedData;
+}
+
 
 // Test route
 app.get('/', (req, res) => {
@@ -112,6 +128,9 @@ app.post('/submit', async (req, res) => {
       messages: [{"role": "user", "content": combinedPrompt}, ],
     });
 
+    const aiResponse = chatCompletion.choices[0].message.content;
+    const parsedResponse = parseAIResponse(aiResponse);
+
     // Send a response back to the frontend
     res.json({ 
       // scrapedContent: scrapedContent, 
@@ -119,7 +138,8 @@ app.post('/submit', async (req, res) => {
       receivedData: userData.inputs, 
       message: "Data received successfully!", 
       chatCompletion: chatCompletion, 
-      openaiResult: "..." 
+      openaiResult: "...", 
+      parsedData: parsedResponse
     });
   } catch (error) {
     console.error('OpenAI API error:', error);
