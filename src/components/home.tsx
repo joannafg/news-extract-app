@@ -116,16 +116,11 @@ const Home: React.FC = () => {
             <Button type="primary" onClick={(e) => fetchMessage()}>Submit</Button>
             <Text>{message}</Text>
             <h1>------</h1>
-            <Text>{openaiResult.date}</Text>
-            <Text>{openaiResult.mediaName}</Text>
-            <Text>{openaiResult.title}</Text>
-            <Text>{openaiResult.articleSummary}</Text>
-            <Text>{openaiResult.mediaBackgroundSummary}</Text>
-            {/* <Text>Date: {openaiResult.date}</Text>
-            <Text>Media Name: {openaiResult.mediaName}</Text>
-            <Text>Title: {openaiResult.title}</Text>
-            <Text>Article Summary: {openaiResult.articleSummary}</Text>
-            <Text>Media Background Summary: {openaiResult.mediaBackgroundSummary}</Text> */}
+            <Text>date: {openaiResult.date}</Text>
+            <Text>mediaName: {openaiResult.mediaName}</Text>
+            <Text>title: {openaiResult.title}</Text>
+            <Text>articleSummary: {openaiResult.articleSummary}</Text>
+            <Text>mediaBackgroundSummary: {openaiResult.mediaBackgroundSummary}</Text>
         </Space >);
 };
 
