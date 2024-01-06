@@ -64,11 +64,11 @@ app.post('/submit', async (req, res) => {
     const preparedContent = cleanAndTruncateText(scrapedContent, 1000);
 
     const translationPrompt = `Translate the following text to English:\n\n${preparedContent}`;
-    const datePrompt = `Based on the previously translated article, give me the date of the publication in the format of September 1, 2021`;
-    const mediaNamePrompt = `Based on the previously translated article, give me the name of the media/publication`;
-    const titlePrompt = `Based on the previously translated article, give me the title of the news article`;
-    const articleSummaryPrompt = `Based on the previously translated article, give me a longer positive summary of news article`;
-    const mediaBackgroundSummaryPrompt = `Based on the previously translated article, give me a postive summary about the background of the media/publication`;
+    const datePrompt = `Based on the previously translated article, give me the date of the publication in the format of "date": "September 1, 2021"`;
+    const mediaNamePrompt = `Based on the previously translated article, give me the name of the media/publication in the format of "mediaName": "Parenting Science Magazine" `;
+    const titlePrompt = `Based on the previously translated article, give me the title of the news article in the format of "title": "Drama in Education, A “Shortcut” Enriching Children’s Life Experience"`;
+    const articleSummaryPrompt = `Based on the previously translated article, give me a longer positive summary of news article in the format of  "articleSummary": "..." `;
+    const mediaBackgroundSummaryPrompt = `Based on the previously translated article, give me a postive summary about the background of the media/publication in the format of "mediaBackgroundSummary": "..."`;
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{"role": "user", "content": translationPrompt}, 
