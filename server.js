@@ -46,19 +46,30 @@ const cleanAndTruncateText = (text, maxChars) => {
 };
 
 function parseAIResponse(response) {
-  // Split the response into lines
-  const lines = response.split('\n').map(line => line.trim());
+  const lines = response.split('\n');
+    let parsedData = {
+        date: "",
+        mediaName: "",
+        title: "",
+        articleSummary: "",
+        mediaBackgroundSummary: ""
+    };
 
-  // Extract information from each line
-  const parsedData = {
-    date: lines[1]?.split(': ')[1],
-    mediaName: lines[2]?.split(': ')[1],
-    title: lines[3]?.split(': ')[1],
-    articleSummary: lines.slice(4, lines.indexOf('5.')).join(' '),
-    mediaBackgroundSummary: lines.slice(lines.indexOf('5.') + 1).join(' ')
-  };
+    lines.forEach(line => {
+        if (line.startsWith('1.')) {
+            parsedData.date = line.substring(3).trim();
+        } else if (line.startsWith('2.')) {
+            parsedData.mediaName = line.substring(3).trim();
+        } else if (line.startsWith('3.')) {
+            parsedData.title = line.substring(3).trim();
+        } else if (line.startsWith('4.')) {
+            parsedData.articleSummary = line.substring(3).trim();
+        } else if (line.startsWith('5.')) {
+            parsedData.mediaBackgroundSummary = line.substring(3).trim();
+        }
+    });
 
-  return parsedData;
+    return parsedData;
 }
 
 
