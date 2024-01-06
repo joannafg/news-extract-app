@@ -26,7 +26,7 @@ const Home: React.FC = () => {
             const response = await axios.post('https://pacific-stream-59101-283446563bde.herokuapp.com/submit', payload);
             // const response = await axios.post('http://localhost:3001/submit', payload);
 
-            setOpenaiResult(response.data.openaiResult);
+            setOpenaiResult(response.data.parsedData);
             setMessage(`Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
         } catch (error) {
             console.error('Error sending data: ', error);
@@ -111,8 +111,13 @@ const Home: React.FC = () => {
             })}
             <Button type="primary" onClick={(e) => addInput()}>Add</Button>
             <Button type="primary" onClick={(e) => fetchMessage()}>Submit</Button>
-            <Text>{message}</Text>
+            {/* <Text>{message}</Text> */}
             <Text>{openaiResult.content}</Text>
+            {/* <Text>Date: {openaiResult.date}</Text>
+            <Text>Media Name: {openaiResult.mediaName}</Text>
+            <Text>Title: {openaiResult.title}</Text>
+            <Text>Article Summary: {openaiResult.articleSummary}</Text>
+            <Text>Media Background Summary: {openaiResult.mediaBackgroundSummary}</Text> */}
         </Space >);
 };
 
