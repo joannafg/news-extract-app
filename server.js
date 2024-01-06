@@ -118,7 +118,7 @@ app.post('/submit', async (req, res) => {
       combinedPrompt: combinedPrompt, 
       receivedData: userData.inputs, 
       message: "Data received successfully!", 
-      // dateResponse: dateResponse, 
+      chatCompletion: chatCompletion, 
       openaiResult: "..." 
     });
   } catch (error) {
