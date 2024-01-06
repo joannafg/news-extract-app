@@ -84,6 +84,7 @@ app.post('/submit', async (req, res) => {
       // scrapedContent: scrapedContent, 
       receivedData: userData.inputs, 
       message: "Data received successfully!", 
+      openaiResult1: chatCompletion, 
       openaiResult: chatCompletion.choices[0].message 
     });
   } catch (error) {
