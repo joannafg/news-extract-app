@@ -78,7 +78,7 @@ app.post('/submit', async (req, res) => {
     const articleSummaryPrompt = `Based on the previously translated article and online resources, give me a longer positive summary of news article in the format of  "articleSummary": "..." `;
     const mediaBackgroundSummaryPrompt = `Based on the previously translated article and online resources, give me a postive summary about the background of the media/publication in the format of "mediaBackgroundSummary": "..."`;
 
-    // const translationResponse = await getChatResponse(translationPrompt);
+    const translationResponse = await getChatResponse(translationPrompt);
     // const dateResponse = await getChatResponse(translationResponse+"\n\n"+datePrompt);
 
     // const chatCompletion = await openai.chat.completions.create({
