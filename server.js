@@ -94,6 +94,7 @@ app.post('/submit', async (req, res) => {
     // Send a response back to the frontend
     res.json({ 
       // scrapedContent: scrapedContent, 
+      translationResponse: translationResponse, 
       receivedData: userData.inputs, 
       message: "Data received successfully!", 
       // dateResponse: dateResponse, 
