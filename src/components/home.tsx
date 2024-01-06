@@ -111,7 +111,8 @@ const Home: React.FC = () => {
             })}
             <Button type="primary" onClick={(e) => addInput()}>Add</Button>
             <Button type="primary" onClick={(e) => fetchMessage()}>Submit</Button>
-            {/* <Text>{message}</Text> */}
+            <Text>{message}</Text>
+            <h1>------</h1>
             <Text>{openaiResult.content}</Text>
             {/* <Text>Date: {openaiResult.date}</Text>
             <Text>Media Name: {openaiResult.mediaName}</Text>
