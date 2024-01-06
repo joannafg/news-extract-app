@@ -79,7 +79,7 @@ app.post('/submit', async (req, res) => {
     const mediaBackgroundSummaryPrompt = `Based on the previously translated article and online resources, give me a postive summary about the background of the media/publication in the format of "mediaBackgroundSummary": "..."`;
 
     const translationResponse = await getChatResponse(translationPrompt);
-    // const dateResponse = await getChatResponse(translationResponse+"\n\n"+datePrompt);
+    const dateResponse = await getChatResponse(translationResponse+"\n\n"+datePrompt);
 
     // const chatCompletion = await openai.chat.completions.create({
     //   model: "gpt-3.5-turbo",
@@ -95,6 +95,7 @@ app.post('/submit', async (req, res) => {
     res.json({ 
       // scrapedContent: scrapedContent, 
       translationResponse: translationResponse, 
+      dateResponse: dateResponse, 
       receivedData: userData.inputs, 
       message: "Data received successfully!", 
       // dateResponse: dateResponse, 
