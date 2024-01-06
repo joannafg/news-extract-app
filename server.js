@@ -55,6 +55,8 @@ function parseAIResponse(response) {
         mediaBackgroundSummary: ""
     };
 
+    let currentSection = '';
+
     lines.forEach(line => {
       if (line.startsWith('1.')) {
           currentSection = 'date';
