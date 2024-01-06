@@ -134,11 +134,11 @@ app.post('/submit', async (req, res) => {
     // Send a response back to the frontend
     res.json({ 
       // scrapedContent: scrapedContent, 
-      combinedPrompt: combinedPrompt, 
-      receivedData: userData.inputs, 
+      // combinedPrompt: combinedPrompt, 
+      // receivedData: userData.inputs, 
       message: "Data received successfully!", 
-      chatCompletion: chatCompletion, 
-      openaiResult: "...", 
+      // chatCompletion: chatCompletion, 
+      // openaiResult: "...", 
       parsedData: parsedResponse
     });
   } catch (error) {
