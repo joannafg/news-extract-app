@@ -78,8 +78,8 @@ app.post('/submit', async (req, res) => {
     const articleSummaryPrompt = `Based on the previously translated article and online resources, give me a longer positive summary of news article in the format of  "articleSummary": "..." `;
     const mediaBackgroundSummaryPrompt = `Based on the previously translated article and online resources, give me a postive summary about the background of the media/publication in the format of "mediaBackgroundSummary": "..."`;
 
-    const translationResponse = await getChatResponse(translationPrompt);
-    const dateResponse = await getChatResponse(translationResponse+"\n\n"+datePrompt);
+    // const translationResponse = await getChatResponse(translationPrompt);
+    // const dateResponse = await getChatResponse(translationResponse+"\n\n"+datePrompt);
 
     // const chatCompletion = await openai.chat.completions.create({
     //   model: "gpt-3.5-turbo",
@@ -91,11 +91,31 @@ app.post('/submit', async (req, res) => {
     //   {"role": "user", "content": mediaBackgroundSummaryPrompt},],
     // });
 
+    const combinedPrompt = `
+    I have a news article which I need some information about. First, please translate the following text to English: 
+
+    ${preparedContent}
+
+    After translating, based on the content, please provide the following details in a structured format:
+
+    1. The date of the news article.
+    2. The name of the media or publication where this article was published.
+    3. The title of the news article.
+    4. A positive, long summary of the news article.
+    5. A positive summary about the background of the media or publication.
+
+    Please present all this information clearly and concisely.
+    `;
+
+    const chatCompletion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{"role": "user", "content": combinedPrompt}, ],
+    });
+
     // Send a response back to the frontend
     res.json({ 
       // scrapedContent: scrapedContent, 
-      translationResponse: translationResponse, 
-      dateResponse: dateResponse, 
+      combinedPrompt: combinedPrompt, 
       receivedData: userData.inputs, 
       message: "Data received successfully!", 
       // dateResponse: dateResponse, 
