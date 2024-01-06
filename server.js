@@ -51,6 +51,14 @@ app.get('/', (req, res) => {
   res.send('Successfully fetched from backend : )');
 });
 
+async function getChatResponse(message) {
+  const response = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [{"role": "user", "content": message},],
+  });
+  return response.choices[0].message;
+}
+
 app.post('/submit', async (req, res) => {
   const userData = req.body;
   console.log(userData);  // Log the user data
@@ -69,23 +77,27 @@ app.post('/submit', async (req, res) => {
     const titlePrompt = `Based on the previously translated article, give me the title of the news article in the format of "title": "Drama in Education, A “Shortcut” Enriching Children’s Life Experience"`;
     const articleSummaryPrompt = `Based on the previously translated article and online resources, give me a longer positive summary of news article in the format of  "articleSummary": "..." `;
     const mediaBackgroundSummaryPrompt = `Based on the previously translated article and online resources, give me a postive summary about the background of the media/publication in the format of "mediaBackgroundSummary": "..."`;
-    const chatCompletion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{"role": "user", "content": translationPrompt}, 
-      {"role": "user", "content": datePrompt}, 
-      {"role": "user", "content": mediaNamePrompt}, 
-      {"role": "user", "content": titlePrompt}, 
-      {"role": "user", "content": articleSummaryPrompt}, 
-      {"role": "user", "content": mediaBackgroundSummaryPrompt},],
-    });
+
+    const translationResponse = await getChatResponse(translationPrompt);
+    const dateResponse = await getChatResponse(translationResponse+"\n\n"+datePrompt);
+
+    // const chatCompletion = await openai.chat.completions.create({
+    //   model: "gpt-3.5-turbo",
+    //   messages: [{"role": "user", "content": translationPrompt}, 
+    //   {"role": "user", "content": datePrompt}, 
+    //   {"role": "user", "content": mediaNamePrompt}, 
+    //   {"role": "user", "content": titlePrompt}, 
+    //   {"role": "user", "content": articleSummaryPrompt}, 
+    //   {"role": "user", "content": mediaBackgroundSummaryPrompt},],
+    // });
 
     // Send a response back to the frontend
     res.json({ 
       // scrapedContent: scrapedContent, 
       receivedData: userData.inputs, 
       message: "Data received successfully!", 
-      openaiResult1: chatCompletion, 
-      openaiResult: chatCompletion.choices[0].message 
+      dateResponse: dateResponse, 
+      openaiResult: "..." 
     });
   } catch (error) {
     console.error('OpenAI API error:', error);
