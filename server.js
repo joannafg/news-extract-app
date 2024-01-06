@@ -56,18 +56,29 @@ function parseAIResponse(response) {
     };
 
     lines.forEach(line => {
-        if (line.startsWith('1.')) {
-            parsedData.date = line.substring(3).trim();
-        } else if (line.startsWith('2.')) {
-            parsedData.mediaName = line.substring(3).trim();
-        } else if (line.startsWith('3.')) {
-            parsedData.title = line.substring(3).trim();
-        } else if (line.startsWith('4.')) {
-            parsedData.articleSummary = line.substring(3).trim();
-        } else if (line.startsWith('5.')) {
-            parsedData.mediaBackgroundSummary = line.substring(3).trim();
-        }
-    });
+      if (line.startsWith('1.')) {
+          currentSection = 'date';
+          parsedData.date = line.substring(3).trim();
+      } else if (line.startsWith('2.')) {
+          currentSection = 'mediaName';
+          parsedData.mediaName = line.substring(3).trim();
+      } else if (line.startsWith('3.')) {
+          currentSection = 'title';
+          parsedData.title = line.substring(3).trim();
+      } else if (line.startsWith('4.')) {
+          currentSection = 'articleSummary';
+          parsedData.articleSummary = line.substring(3).trim();
+      } else if (line.startsWith('5.')) {
+          currentSection = 'mediaBackgroundSummary';
+          parsedData.mediaBackgroundSummary = line.substring(3).trim();
+      } else {
+          if (currentSection === 'articleSummary') {
+              parsedData.articleSummary += ' ' + line.trim();
+          } else if (currentSection === 'mediaBackgroundSummary') {
+              parsedData.mediaBackgroundSummary += ' ' + line.trim();
+          }
+      }
+  });
 
     return parsedData;
 }
