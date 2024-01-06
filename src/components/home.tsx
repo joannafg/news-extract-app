@@ -11,11 +11,14 @@ const { Text, Link } = Typography;
 const Home: React.FC = () => {
 
     const initialOpenAIResult = {
-        role: '',
-        content: ''
+        date: "x",
+        mediaName: "x",
+        title: "x",
+        articleSummary: "x",
+        mediaBackgroundSummary: "x"
     };
 
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState('x');
     const [openaiResult, setOpenaiResult] = useState(initialOpenAIResult);
 
     const fetchMessage = async () => {
@@ -113,7 +116,11 @@ const Home: React.FC = () => {
             <Button type="primary" onClick={(e) => fetchMessage()}>Submit</Button>
             <Text>{message}</Text>
             <h1>------</h1>
-            <Text>{openaiResult.content}</Text>
+            <Text>{openaiResult.date}</Text>
+            <Text>{openaiResult.mediaName}</Text>
+            <Text>{openaiResult.title}</Text>
+            <Text>{openaiResult.articleSummary}</Text>
+            <Text>{openaiResult.mediaBackgroundSummary}</Text>
             {/* <Text>Date: {openaiResult.date}</Text>
             <Text>Media Name: {openaiResult.mediaName}</Text>
             <Text>Title: {openaiResult.title}</Text>
