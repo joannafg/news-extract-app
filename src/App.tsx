@@ -60,7 +60,7 @@ function App() {
             width: 600,
           }}
         />
-        <Text type="secondary">©2023 Avocado LLC</Text>
+        <Text type="secondary">©2024 Avocado LLC</Text>
         {/* </div> */}
         {/* </Space> */}
       </div>

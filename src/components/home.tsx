@@ -242,22 +242,22 @@ const Home: React.FC = () => {
         <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
             {arr.map((item, i) => {
                 return (
-                    <Space direction="horizontal" size="large" style={{ display: 'flex' }}>
+                    <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
                         <Input
                             onChange={handleChange}
                             value={item.value}
                             id={i.toString()}
                             type={item.type}
-                            size="large"
+                            size="middle"
                             style={{ width: 400 }}
                             placeholder="paste your link here"
                         />
-                        <Button type="primary" icon={<DeleteOutlined />} onClick={(e) => deleteInput(e, i)} size={"large"} />
+                        <Button disabled type="primary" icon={<DeleteOutlined />} onClick={(e) => deleteInput(e, i)} size={"middle"} />
                     </Space >
                 );
             })}
-            <Button type="primary" size={"large"} onClick={(e) => addInput()}>Add</Button>
-            <Button type="primary" size={"large"} onClick={(e) => fetchMessage()}>Submit</Button>
+            <Button disabled type="primary" size={"middle"} onClick={(e) => addInput()}>Add</Button>
+            <Button type="primary" size={"middle"} onClick={(e) => fetchMessage()}>Submit</Button>
             {!isDataFetched && (
                 <Text type="danger">{message}</Text>
             )}
@@ -272,7 +272,7 @@ const Home: React.FC = () => {
                             width: 600,
                         }}
                     />
-                    <Text type="secondary">This news article publication is: {openaiResult.date}</Text>
+                    <Text type="secondary">This news article publication date is: {openaiResult.date}</Text>
                     <Text type="secondary">Name of the media is: {openaiResult.mediaName}</Text>
                     <Text type="secondary">Title of the news article is: {openaiResult.title}</Text>
                     <Text type="secondary">Here is a summary of news article: {openaiResult.articleSummary}</Text>
