@@ -5,6 +5,8 @@ import { Button, Flex, Typography } from 'antd';
 import { Card, Space } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, VerticalAlign } from "docx";
+
 
 const { Text, Link } = Typography;
 
@@ -20,6 +22,8 @@ const Home: React.FC = () => {
 
     const [message, setMessage] = useState('x');
     const [openaiResult, setOpenaiResult] = useState(initialOpenAIResult);
+    const [isDataFetched, setIsDataFetched] = useState(false);
+
 
     const fetchMessage = async () => {
         try {
@@ -31,9 +35,11 @@ const Home: React.FC = () => {
 
             setOpenaiResult(response.data.parsedData);
             setMessage(`Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
+            setIsDataFetched(true);
         } catch (error) {
             console.error('Error sending data: ', error);
             setMessage('Failed to send data');
+            setIsDataFetched(false);
         }
     };
 
@@ -94,6 +100,89 @@ const Home: React.FC = () => {
         });
     };
 
+    const createAndDownloadDoc = () => {
+        const doc = new Document({
+            styles: {
+                paragraphStyles: [
+                    {
+                        id: "defaultParagraph",
+                        name: "Default Paragraph",
+                        basedOn: "Normal",
+                        next: "Normal",
+                        run: {
+                            size: 24,
+                        },
+                    },
+                ],
+            },
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        children: [
+                            new TextRun({ text: "Table 1: Published Materials regarding XXX and his or her distinguished work/experience", bold: true }),
+                        ],
+                    }),
+                    new Table({
+                        rows: [
+                            new TableRow({
+                                children: [
+                                    new TableCell({
+                                        children: [new Paragraph("Date")],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                    }),
+                                    new TableCell({
+                                        children: [new Paragraph({
+                                            children: [
+                                                new TextRun({ text: "Media/Publication", bold: true }),
+                                            ],
+                                        })],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                    }),
+                                    new TableCell({
+                                        children: [new Paragraph("Title")],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                    }),
+                                ],
+                            }),
+                            new TableRow({
+                                children: [
+                                    new TableCell({
+                                        children: [new Paragraph(openaiResult.date)],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                    }),
+                                    new TableCell({
+                                        children: [new Paragraph({
+                                            children: [
+                                                new TextRun({ text: openaiResult.mediaName, bold: true }),
+                                            ],
+                                        })],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                    }),
+                                    new TableCell({
+                                        children: [new Paragraph(openaiResult.title)],
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                ],
+            }],
+        });
+
+        Packer.toBlob(doc).then(blob => {
+            // Download the document
+            const url = window.URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+            anchor.href = url;
+            anchor.download = "Summary.docx";
+            anchor.click();
+
+            window.URL.revokeObjectURL(url);
+        });
+    };
+
+
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
             {arr.map((item, i) => {
@@ -121,6 +210,12 @@ const Home: React.FC = () => {
             <Text>title: {openaiResult.title}</Text>
             <Text>articleSummary: {openaiResult.articleSummary}</Text>
             <Text>mediaBackgroundSummary: {openaiResult.mediaBackgroundSummary}</Text>
+            {isDataFetched && (
+                <>
+                    <Button type="primary" onClick={createAndDownloadDoc}>Download Word Document</Button>
+                    <div style={{ height: '20px' }} />
+                </>
+            )}
         </Space >);
 };
 
