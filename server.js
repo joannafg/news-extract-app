@@ -149,7 +149,7 @@ app.post('/submit', async (req, res) => {
     1. The date of the news article.
     2. The name of the media or publication where this article was published.
     3. The title of the news article.
-    4. A positive, long summary of the news article.
+    4. A positive summary of the news article.
     5. A positive summary about the background of the media or publication.
 
     Please present all this information clearly and concisely.
