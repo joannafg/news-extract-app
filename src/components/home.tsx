@@ -272,11 +272,19 @@ const Home: React.FC = () => {
                             width: 600,
                         }}
                     />
-                    <Text type="secondary">This news article publication date is: {openaiResult.date}</Text>
-                    <Text type="secondary">Name of the media is: {openaiResult.mediaName}</Text>
+                    <Text type="secondary">
+                        This news article publication date is {openaiResult.date}.
+                        Name of the media is {openaiResult.mediaName}.
+                        Title of the news article is {openaiResult.title}.
+                        <br></br>
+                        Here is a summary of news article: {openaiResult.articleSummary}
+                        <br></br>
+                        Here is a summary on the background of the media: {openaiResult.mediaBackgroundSummary}
+                    </Text>
+                    {/* <Text type="secondary">Name of the media is: {openaiResult.mediaName}</Text>
                     <Text type="secondary">Title of the news article is: {openaiResult.title}</Text>
                     <Text type="secondary">Here is a summary of news article: {openaiResult.articleSummary}</Text>
-                    <Text type="secondary">Here is a summary on the background of the media: {openaiResult.mediaBackgroundSummary}</Text>
+                    <Text type="secondary">Here is a summary on the background of the media: {openaiResult.mediaBackgroundSummary}</Text> */}
                     <Button type="primary" onClick={createAndDownloadDoc}>Download Result as A Word Document</Button>
                     <div style={{ height: '20px' }} />
                 </>
