@@ -240,6 +240,7 @@ const Home: React.FC = () => {
 
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+            <Text type="secondary">Please include the full web address. exp. https://www....</Text>
             {arr.map((item, i) => {
                 return (
                     <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
