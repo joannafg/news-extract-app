@@ -22,21 +22,35 @@ function App() {
     >
       {/* <div className='gradient_background'> */}
 
-      <Space direction="vertical" size="large" style={{
+      {/* <Space direction="vertical" size="large" style={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        flexDirection: 'column'
-      }}>
-        {/* <div style={{
+        flexDirection: 'column',
+        minHeight: '100vh',
+        overflow: 'auto',
+        padding: '0 20px',
+      }}> */}
+      {/* <div style={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
         flexDirection: 'column'
       }}> */}
-        <Home />
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+        minHeight: '100vh',
+        overflow: 'auto',
+        padding: '0 20px',
+      }}>
+        <div style={{ width: '50%' }}>
+          <Home />
+        </div>
         <div
           style={{
             color: '#889900',
@@ -48,7 +62,8 @@ function App() {
         />
         <Text type="secondary">©2023 Avocado LLC</Text>
         {/* </div> */}
-      </Space>
+        {/* </Space> */}
+      </div>
       {/* </div> */}
     </ConfigProvider>
   );
