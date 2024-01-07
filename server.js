@@ -45,6 +45,14 @@ const cleanAndTruncateText = (text, maxChars) => {
   return cleanedText.length > maxChars ? cleanedText.slice(0, maxChars) + '...' : cleanedText;
 };
 
+function extractAfterColon(inputString) {
+  const parts = inputString.split(': ');
+  if (parts.length > 1) {
+      return parts[1].trim(); // Return the part after the colon
+  }
+  return ''; // Return empty string if no colon was found
+}
+
 function parseAIResponse(response) {
   const lines = response.split('\n');
     let parsedData = {
@@ -60,19 +68,19 @@ function parseAIResponse(response) {
     lines.forEach(line => {
       if (line.startsWith('1.')) {
           currentSection = 'date';
-          parsedData.date = line.substring(3).trim();
+          parsedData.date = extractAfterColon(line.substring(3).trim());
       } else if (line.startsWith('2.')) {
           currentSection = 'mediaName';
-          parsedData.mediaName = line.substring(3).trim();
+          parsedData.mediaName = extractAfterColon(line.substring(3).trim());
       } else if (line.startsWith('3.')) {
           currentSection = 'title';
-          parsedData.title = line.substring(3).trim();
+          parsedData.title = extractAfterColon(line.substring(3).trim());
       } else if (line.startsWith('4.')) {
           currentSection = 'articleSummary';
-          parsedData.articleSummary = line.substring(3).trim();
+          parsedData.articleSummary = extractAfterColon(line.substring(3).trim());
       } else if (line.startsWith('5.')) {
           currentSection = 'mediaBackgroundSummary';
-          parsedData.mediaBackgroundSummary = line.substring(3).trim();
+          parsedData.mediaBackgroundSummary = extractAfterColon(line.substring(3).trim());
       } else {
           if (currentSection === 'articleSummary') {
               parsedData.articleSummary += ' ' + line.trim();
