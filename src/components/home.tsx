@@ -13,19 +13,20 @@ const { Text, Link } = Typography;
 const Home: React.FC = () => {
 
     const initialOpenAIResult = {
-        date: "x",
-        mediaName: "x",
-        title: "x",
-        articleSummary: "x",
-        mediaBackgroundSummary: "x"
+        date: "",
+        mediaName: "",
+        title: "",
+        articleSummary: "",
+        mediaBackgroundSummary: ""
     };
 
-    const [message, setMessage] = useState('x');
+    const [message, setMessage] = useState('');
     const [openaiResult, setOpenaiResult] = useState(initialOpenAIResult);
     const [isDataFetched, setIsDataFetched] = useState(false);
 
 
     const fetchMessage = async () => {
+        setMessage("");
         try {
             const payload = {
                 inputs: arr.map(item => item.value)
@@ -103,32 +104,39 @@ const Home: React.FC = () => {
     const createAndDownloadDoc = () => {
         const doc = new Document({
             styles: {
-                paragraphStyles: [
-                    {
-                        id: "defaultParagraph",
-                        name: "Default Paragraph",
-                        basedOn: "Normal",
-                        next: "Normal",
+                default: {
+                    document: {
                         run: {
-                            size: 24,
+                            size: 24, // Size 12 in half-points
+                            font: "Times New Roman",
+                        },
+                        paragraph: {
+                            spacing: {
+                                line: 276, // Line spacing (1.15 * 240)
+                            },
                         },
                     },
-                ],
+                },
             },
             sections: [{
                 properties: {},
                 children: [
+                    new Paragraph(''),
                     new Paragraph({
                         children: [
                             new TextRun({ text: "Table 1: Published Materials regarding XXX and his or her distinguished work/experience", bold: true }),
                         ],
+                        alignment: 'center',
                     }),
                     new Table({
                         rows: [
                             new TableRow({
                                 children: [
                                     new TableCell({
-                                        children: [new Paragraph("Date")],
+                                        children: [new Paragraph({
+                                            text: "Date",
+                                            alignment: 'center',
+                                        })],
                                         verticalAlign: VerticalAlign.CENTER,
                                     }),
                                     new TableCell({
@@ -136,11 +144,15 @@ const Home: React.FC = () => {
                                             children: [
                                                 new TextRun({ text: "Media/Publication", bold: true }),
                                             ],
+                                            alignment: 'center',
                                         })],
                                         verticalAlign: VerticalAlign.CENTER,
                                     }),
                                     new TableCell({
-                                        children: [new Paragraph("Title")],
+                                        children: [new Paragraph({
+                                            text: "Title",
+                                            alignment: 'center',
+                                        })],
                                         verticalAlign: VerticalAlign.CENTER,
                                     }),
                                 ],
@@ -148,7 +160,10 @@ const Home: React.FC = () => {
                             new TableRow({
                                 children: [
                                     new TableCell({
-                                        children: [new Paragraph(openaiResult.date)],
+                                        children: [new Paragraph({
+                                            text: openaiResult.date,
+                                            alignment: 'center',
+                                        })],
                                         verticalAlign: VerticalAlign.CENTER,
                                     }),
                                     new TableCell({
@@ -156,6 +171,7 @@ const Home: React.FC = () => {
                                             children: [
                                                 new TextRun({ text: openaiResult.mediaName, bold: true }),
                                             ],
+                                            alignment: 'center',
                                         })],
                                         verticalAlign: VerticalAlign.CENTER,
                                     }),
@@ -165,6 +181,45 @@ const Home: React.FC = () => {
                                 ],
                             }),
                         ],
+                    }),
+                    new Paragraph(''),
+
+                    // MediaName, Title, and Date
+                    new Paragraph({
+                        children: [
+                            new TextRun({
+                                text: `1.1 ${openaiResult.mediaName}: ${openaiResult.title} (Dated on ${openaiResult.date})`,
+                                bold: true,
+                            }),
+                        ],
+                        spacing: { after: 200 },
+                    }),
+
+                    // Article Summary with left indent
+                    new Paragraph({
+                        text: openaiResult.articleSummary,
+                        indent: { firstLine: 720 }, // Indentation (value in twentieths of a point)
+                    }),
+
+                    // Empty line
+                    new Paragraph(''),
+
+                    // About MediaName in bold and italic
+                    new Paragraph({
+                        children: [
+                            new TextRun({
+                                text: `About ${openaiResult.mediaName}`,
+                                bold: true,
+                                italics: true,
+                            }),
+                        ],
+                        spacing: { after: 200 },
+                    }),
+
+                    // Media Background Summary with left indent
+                    new Paragraph({
+                        text: openaiResult.mediaBackgroundSummary,
+                        indent: { firstLine: 720 }, // Indentation
                     }),
                 ],
             }],
@@ -187,32 +242,42 @@ const Home: React.FC = () => {
         <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
             {arr.map((item, i) => {
                 return (
-                    <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
+                    <Space direction="horizontal" size="large" style={{ display: 'flex' }}>
                         <Input
                             onChange={handleChange}
                             value={item.value}
                             id={i.toString()}
                             type={item.type}
-                            size="middle"
+                            size="large"
                             style={{ width: 400 }}
                             placeholder="paste your link here"
                         />
-                        <Button type="primary" icon={<DeleteOutlined />} onClick={(e) => deleteInput(e, i)} size={"middle"} />
+                        <Button type="primary" icon={<DeleteOutlined />} onClick={(e) => deleteInput(e, i)} size={"large"} />
                     </Space >
                 );
             })}
-            <Button type="primary" onClick={(e) => addInput()}>Add</Button>
-            <Button type="primary" onClick={(e) => fetchMessage()}>Submit</Button>
-            <Text>{message}</Text>
-            <h1>------</h1>
-            <Text>date: {openaiResult.date}</Text>
-            <Text>mediaName: {openaiResult.mediaName}</Text>
-            <Text>title: {openaiResult.title}</Text>
-            <Text>articleSummary: {openaiResult.articleSummary}</Text>
-            <Text>mediaBackgroundSummary: {openaiResult.mediaBackgroundSummary}</Text>
+            <Button type="primary" size={"large"} onClick={(e) => addInput()}>Add</Button>
+            <Button type="primary" size={"large"} onClick={(e) => fetchMessage()}>Submit</Button>
+            {!isDataFetched && (
+                <Text type="danger">{message}</Text>
+            )}
             {isDataFetched && (
                 <>
-                    <Button type="primary" onClick={createAndDownloadDoc}>Download Word Document</Button>
+                    <div
+                        style={{
+                            color: '#889900',
+                            backgroundColor: '#889900',
+                            borderColor: '#889900',
+                            height: 1,
+                            width: 600,
+                        }}
+                    />
+                    <Text type="secondary">This news article publication is: {openaiResult.date}</Text>
+                    <Text type="secondary">Name of the media is: {openaiResult.mediaName}</Text>
+                    <Text type="secondary">Title of the news article is: {openaiResult.title}</Text>
+                    <Text type="secondary">Here is a summary of news article: {openaiResult.articleSummary}</Text>
+                    <Text type="secondary">Here is a summary on the background of the media: {openaiResult.mediaBackgroundSummary}</Text>
+                    <Button type="primary" onClick={createAndDownloadDoc}>Download Result as A Word Document</Button>
                     <div style={{ height: '20px' }} />
                 </>
             )}
