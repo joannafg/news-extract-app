@@ -240,7 +240,7 @@ const Home: React.FC = () => {
 
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-            <Text type="secondary">Please include the full web address. exp. https://www....</Text>
+            <Text type="secondary">Please include the full web address. exp. https://... After submit is clicked, please wait up to 30 seconds for it to process. In the meantime, do not refresh the page or click submit again.</Text>
             {arr.map((item, i) => {
                 return (
                     <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
