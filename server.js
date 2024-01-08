@@ -165,7 +165,8 @@ app.post('/submit', async (req, res) => {
 
     // Send a response back to the frontend
     res.json({ 
-      scrapedContent: scrapedContent, 
+      scrapedContent: scrapedContent,
+      processedContent: preparedContent,  
       // combinedPrompt: combinedPrompt, 
       // receivedData: userData.inputs, 
       message: "Data received successfully!", 
