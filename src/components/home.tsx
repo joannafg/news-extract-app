@@ -284,7 +284,7 @@ const Home: React.FC = () => {
 
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-            <Text type="secondary">Please include the full web address. exp. https://... <br></br> After submit is clicked, please wait up to 30 seconds for it to process. In the meantime, do not refresh the page or click submit again.</Text>
+            <Text type="secondary">Please include the full web address. exp. https://...</Text>
             {arr.map((item, i) => {
                 return (
                     <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
@@ -322,15 +322,15 @@ const Home: React.FC = () => {
                             />
                         )}
                         <Text type="secondary">
-                            Article {index + 1}'s Extraction Summary
+                            Article <strong>{index + 1}</strong>'s Extraction Summary
                             <br></br>
-                            This news article publication date is {item.date}.
-                            Name of the media is {item.mediaName}.
-                            Title of the news article is {item.title}.
+                            This news article publication date is <strong>{item.date}</strong>.
+                            Name of the media is <strong>{item.mediaName}</strong>.
+                            Title of the news article is <strong>{item.title}</strong>.
                             <br></br>
-                            Here is a summary of news article: {item.articleSummary}
+                            Here is a summary of news article: <strong>{item.articleSummary}</strong>
                             <br></br>
-                            Here is a summary on the background of the media: {item.mediaBackgroundSummary}
+                            Here is a summary on the background of the media: <strong>{item.mediaBackgroundSummary}</strong>
                         </Text>
                         {/* <Text type="secondary">Name of the media is: {openaiResult.mediaName}</Text>
                     <Text type="secondary">Title of the news article is: {openaiResult.title}</Text>
