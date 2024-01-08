@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import { OpenAI } from 'openai';
 import axios from 'axios';
 import cheerio from 'cheerio';
+import puppeteer from 'puppeteer';
+
 
 
 dotenv.config();
