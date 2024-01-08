@@ -37,7 +37,7 @@ const scrapeContent = async (url) => {
     try {
       const browser = await puppeteer.launch();
       const page = await browser.newPage();
-      await page.goto(url, { waitUntil: 'networkidle2' });
+      await page.goto(url, { waitUntil: 'networkidle2' , timeout: 6000 });
 
       const puppeteerContent = await page.evaluate(() => {
         return document.querySelector('body').innerText;
