@@ -189,207 +189,75 @@ const Home: React.FC = () => {
                                     }),
                                 ],
                             }),
-                            new TableRow({
-                                children: [
-                                    new TableCell({
-                                        children: [new Paragraph({
-                                            text: openaiResult.date,
-                                            alignment: 'center',
-                                        })],
-                                        verticalAlign: VerticalAlign.CENTER,
-                                    }),
-                                    new TableCell({
-                                        children: [new Paragraph({
-                                            children: [
-                                                new TextRun({ text: openaiResult.mediaName, bold: true }),
-                                            ],
-                                            alignment: 'center',
-                                        })],
-                                        verticalAlign: VerticalAlign.CENTER,
-                                    }),
-                                    new TableCell({
-                                        children: [new Paragraph(openaiResult.title)],
-                                    }),
-                                ],
-                            }),
+                            ...openaiResult.map(result => {
+                                return new TableRow({
+                                    children: [
+                                        new TableCell({
+                                            children: [new Paragraph({
+                                                text: result.date,
+                                                alignment: 'center',
+                                            })],
+                                            verticalAlign: VerticalAlign.CENTER,
+                                        }),
+                                        new TableCell({
+                                            children: [new Paragraph({
+                                                children: [
+                                                    new TextRun({ text: result.mediaName, bold: true }),
+                                                ],
+                                                alignment: 'center',
+                                            })],
+                                            verticalAlign: VerticalAlign.CENTER,
+                                        }),
+                                        new TableCell({
+                                            children: [new Paragraph(result.title)],
+                                        }),
+                                    ],
+                                });
+                            })
+
                         ],
                     }),
-                    new Paragraph(''),
+                    ...openaiResult.flatMap(result => [
+                        new Paragraph(''),
 
-                    // MediaName, Title, and Date
-                    new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: `1.1 ${openaiResult.mediaName}: ${openaiResult.title} (Dated on ${openaiResult.date})`,
-                                bold: true,
-                            }),
-                        ],
-                        spacing: { after: 200 },
-                    }),
+                        // MediaName, Title, and Date
+                        new Paragraph({
+                            children: [
+                                new TextRun({
+                                    text: `1.1 ${result.mediaName}: ${result.title} (Dated on ${result.date})`,
+                                    bold: true,
+                                }),
+                            ],
+                            spacing: { after: 200 },
+                        }),
 
-                    // Article Summary with left indent
-                    new Paragraph({
-                        text: openaiResult.articleSummary,
-                        indent: { firstLine: 720 }, // Indentation (value in twentieths of a point)
-                    }),
+                        // Article Summary with left indent
+                        new Paragraph({
+                            text: result.articleSummary,
+                            indent: { firstLine: 720 }, // Indentation (value in twentieths of a point)
+                        }),
 
-                    // Empty line
-                    new Paragraph(''),
+                        // Empty line
+                        new Paragraph(''),
 
-                    // About MediaName in bold and italic
-                    new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: `About ${openaiResult.mediaName}`,
-                                bold: true,
-                                italics: true,
-                            }),
-                        ],
-                        spacing: { after: 200 },
-                    }),
+                        // About MediaName in bold and italic
+                        new Paragraph({
+                            children: [
+                                new TextRun({
+                                    text: `About ${result.mediaName}`,
+                                    bold: true,
+                                    italics: true,
+                                }),
+                            ],
+                            spacing: { after: 200 },
+                        }),
 
-                    // Media Background Summary with left indent
-                    new Paragraph({
-                        text: openaiResult.mediaBackgroundSummary,
-                        indent: { firstLine: 720 }, // Indentation
-                    }),
-                ],
-            }],
-        });
+                        // Media Background Summary with left indent
+                        new Paragraph({
+                            text: result.mediaBackgroundSummary,
+                            indent: { firstLine: 720 }, // Indentation
+                        }),])
 
-        Packer.toBlob(doc).then(blob => {
-            // Download the document
-            const url = window.URL.createObjectURL(blob);
-            const anchor = document.createElement("a");
-            anchor.href = url;
-            anchor.download = "Summary.docx";
-            anchor.click();
-
-            window.URL.revokeObjectURL(url);
-        });
-    };
-
-
-    const createAndDownloadDoc = () => {
-        const doc = new Document({
-            styles: {
-                default: {
-                    document: {
-                        run: {
-                            size: 24, // Size 12 in half-points
-                            font: "Times New Roman",
-                        },
-                        paragraph: {
-                            spacing: {
-                                line: 276, // Line spacing (1.15 * 240)
-                            },
-                        },
-                    },
-                },
-            },
-            sections: [{
-                properties: {},
-                children: [
-                    new Paragraph(''),
-                    new Paragraph({
-                        children: [
-                            new TextRun({ text: "Table 1: Published Materials regarding XXX and his or her distinguished work/experience", bold: true }),
-                        ],
-                        alignment: 'center',
-                    }),
-                    new Table({
-                        rows: [
-                            new TableRow({
-                                children: [
-                                    new TableCell({
-                                        children: [new Paragraph({
-                                            text: "Date",
-                                            alignment: 'center',
-                                        })],
-                                        verticalAlign: VerticalAlign.CENTER,
-                                    }),
-                                    new TableCell({
-                                        children: [new Paragraph({
-                                            children: [
-                                                new TextRun({ text: "Media/Publication", bold: true }),
-                                            ],
-                                            alignment: 'center',
-                                        })],
-                                        verticalAlign: VerticalAlign.CENTER,
-                                    }),
-                                    new TableCell({
-                                        children: [new Paragraph({
-                                            text: "Title",
-                                            alignment: 'center',
-                                        })],
-                                        verticalAlign: VerticalAlign.CENTER,
-                                    }),
-                                ],
-                            }),
-                            new TableRow({
-                                children: [
-                                    new TableCell({
-                                        children: [new Paragraph({
-                                            text: openaiResult.date,
-                                            alignment: 'center',
-                                        })],
-                                        verticalAlign: VerticalAlign.CENTER,
-                                    }),
-                                    new TableCell({
-                                        children: [new Paragraph({
-                                            children: [
-                                                new TextRun({ text: openaiResult.mediaName, bold: true }),
-                                            ],
-                                            alignment: 'center',
-                                        })],
-                                        verticalAlign: VerticalAlign.CENTER,
-                                    }),
-                                    new TableCell({
-                                        children: [new Paragraph(openaiResult.title)],
-                                    }),
-                                ],
-                            }),
-                        ],
-                    }),
-                    new Paragraph(''),
-
-                    // MediaName, Title, and Date
-                    new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: `1.1 ${openaiResult.mediaName}: ${openaiResult.title} (Dated on ${openaiResult.date})`,
-                                bold: true,
-                            }),
-                        ],
-                        spacing: { after: 200 },
-                    }),
-
-                    // Article Summary with left indent
-                    new Paragraph({
-                        text: openaiResult.articleSummary,
-                        indent: { firstLine: 720 }, // Indentation (value in twentieths of a point)
-                    }),
-
-                    // Empty line
-                    new Paragraph(''),
-
-                    // About MediaName in bold and italic
-                    new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: `About ${openaiResult.mediaName}`,
-                                bold: true,
-                                italics: true,
-                            }),
-                        ],
-                        spacing: { after: 200 },
-                    }),
-
-                    // Media Background Summary with left indent
-                    new Paragraph({
-                        text: openaiResult.mediaBackgroundSummary,
-                        indent: { firstLine: 720 }, // Indentation
-                    }),
                 ],
             }],
         });
