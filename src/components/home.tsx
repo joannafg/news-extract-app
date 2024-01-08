@@ -10,6 +10,15 @@ import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, Verti
 
 const { Text, Link } = Typography;
 
+interface IOpenAIResult {
+    date: string;
+    mediaName: string;
+    title: string;
+    articleSummary: string;
+    mediaBackgroundSummary: string;
+}
+
+
 const Home: React.FC = () => {
 
     const initialOpenAIResult = {
@@ -20,28 +29,51 @@ const Home: React.FC = () => {
         mediaBackgroundSummary: ""
     };
 
-    const [message, setMessage] = useState('');
-    const [openaiResult, setOpenaiResult] = useState(initialOpenAIResult);
+    const [messages, setMessages] = useState<string[]>([]);
+    const [openaiResult, setOpenaiResult] = useState<IOpenAIResult[]>([]);
     const [isDataFetched, setIsDataFetched] = useState(false);
 
+    const updateMessage = (index: number, newMessage: string) => {
+        setMessages(currentMessages => {
+            const updatedMessages = [...currentMessages];
+            updatedMessages[index] = newMessage;
+            return updatedMessages;
+        });
+    };
 
-    const fetchMessage = async () => {
-        setMessage("");
-        try {
-            const payload = {
-                inputs: arr.map(item => item.value)
-            };
-            const response = await axios.post('https://pacific-stream-59101-283446563bde.herokuapp.com/submit', payload);
-            // const response = await axios.post('http://localhost:3001/submit', payload);
+    const updateOpenAIResult = (index: number, result: IOpenAIResult) => {
+        setOpenaiResult(currentResults => {
+            // If the index is greater than the current array length, fill the array
+            const updatedResults = currentResults.length > index
+                ? [...currentResults]
+                : [...currentResults, ...Array(index - currentResults.length).fill(null)];
 
-            setOpenaiResult(response.data.parsedData);
-            setMessage(`Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
-            setIsDataFetched(true);
-        } catch (error) {
-            console.error('Error sending data: ', error);
-            setMessage('Failed to send data');
-            setIsDataFetched(false);
-        }
+            updatedResults[index] = result;
+            return updatedResults;
+        });
+    };
+
+    const fetchMessages = async () => {
+        setMessages([]);
+        setOpenaiResult([]);
+        arr.forEach(async (item, index) => {
+            try {
+                const payload = { inputs: [arr[index].value] };
+                const response = await axios.post('https://pacific-stream-59101-283446563bde.herokuapp.com/submit', payload);
+                // const response = await axios.post('http://localhost:3001/submit', payload);
+
+                updateOpenAIResult(index, response.data.parsedData);
+                updateMessage(index, `Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
+                setIsDataFetched(true);
+                console.log(response.data);
+            } catch (error) {
+                console.error('Error sending data: ', error);
+                updateOpenAIResult(index, { date: "", mediaName: "", title: "", articleSummary: "", mediaBackgroundSummary: "" });
+                updateMessage(index, 'Failed to send data');
+                setIsDataFetched(false);
+                console.log(error);
+            }
+        });
     };
 
 
@@ -49,7 +81,7 @@ const Home: React.FC = () => {
 
     const uid = function () {
         return Date.now() + Math.floor(Math.random() * 1000);
-    }
+    };
 
     const inputArr: { id: number, type: string, value: string }[] = [
         {
@@ -130,112 +162,58 @@ const Home: React.FC = () => {
                     }),
                     new Table({
                         rows: [
+                            // Table header
                             new TableRow({
                                 children: [
                                     new TableCell({
-                                        children: [new Paragraph({
-                                            text: "Date",
-                                            alignment: 'center',
-                                        })],
+                                        children: [new Paragraph({ text: "Date", alignment: 'center', })],
                                         verticalAlign: VerticalAlign.CENTER,
                                     }),
                                     new TableCell({
-                                        children: [new Paragraph({
-                                            children: [
-                                                new TextRun({ text: "Media/Publication", bold: true }),
-                                            ],
-                                            alignment: 'center',
-                                        })],
+                                        children: [new Paragraph({ children: [new TextRun({ text: "Media/Publication", bold: true }),], alignment: 'center', })],
                                         verticalAlign: VerticalAlign.CENTER,
                                     }),
                                     new TableCell({
-                                        children: [new Paragraph({
-                                            text: "Title",
-                                            alignment: 'center',
-                                        })],
+                                        children: [new Paragraph({ text: "Title", alignment: 'center', })],
                                         verticalAlign: VerticalAlign.CENTER,
                                     }),
                                 ],
                             }),
-                            new TableRow({
+                            // Dynamic rows based on openaiResult
+                            ...openaiResult.map(result => new TableRow({
                                 children: [
                                     new TableCell({
-                                        children: [new Paragraph({
-                                            text: openaiResult.date,
-                                            alignment: 'center',
-                                        })],
+                                        children: [new Paragraph({ text: result.date, alignment: 'center', })],
                                         verticalAlign: VerticalAlign.CENTER,
                                     }),
                                     new TableCell({
-                                        children: [new Paragraph({
-                                            children: [
-                                                new TextRun({ text: openaiResult.mediaName, bold: true }),
-                                            ],
-                                            alignment: 'center',
-                                        })],
+                                        children: [new Paragraph({ children: [new TextRun({ text: result.mediaName, bold: true }),], alignment: 'center', })],
                                         verticalAlign: VerticalAlign.CENTER,
                                     }),
                                     new TableCell({
-                                        children: [new Paragraph(openaiResult.title)],
+                                        children: [new Paragraph({ text: result.title })],
                                     }),
                                 ],
-                            }),
+                            })),
                         ],
                     }),
-                    new Paragraph(''),
-
-                    // MediaName, Title, and Date
-                    new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: `1.1 ${openaiResult.mediaName}: ${openaiResult.title} (Dated on ${openaiResult.date})`,
-                                bold: true,
-                            }),
-                        ],
-                        spacing: { after: 200 },
-                    }),
-
-                    // Article Summary with left indent
-                    new Paragraph({
-                        text: openaiResult.articleSummary,
-                        indent: { firstLine: 720 }, // Indentation (value in twentieths of a point)
-                    }),
-
-                    // Empty line
-                    new Paragraph(''),
-
-                    // About MediaName in bold and italic
-                    new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: `About ${openaiResult.mediaName}`,
-                                bold: true,
-                                italics: true,
-                            }),
-                        ],
-                        spacing: { after: 200 },
-                    }),
-
-                    // Media Background Summary with left indent
-                    new Paragraph({
-                        text: openaiResult.mediaBackgroundSummary,
-                        indent: { firstLine: 720 }, // Indentation
-                    }),
+                    // Add the rest of your document content here
                 ],
             }],
         });
 
+        // Use Packer to create a Blob from the document
         Packer.toBlob(doc).then(blob => {
-            // Download the document
+            // Download the document as a Word file
             const url = window.URL.createObjectURL(blob);
             const anchor = document.createElement("a");
             anchor.href = url;
             anchor.download = "Summary.docx";
             anchor.click();
-
             window.URL.revokeObjectURL(url);
         });
     };
+
 
 
     return (
@@ -253,43 +231,47 @@ const Home: React.FC = () => {
                             style={{ width: 400 }}
                             placeholder="paste your link here"
                         />
-                        <Button disabled type="primary" icon={<DeleteOutlined />} onClick={(e) => deleteInput(e, i)} size={"middle"} />
+                        <Button type="primary" icon={<DeleteOutlined />} onClick={(e) => deleteInput(e, i)} size={"middle"} />
                     </Space >
                 );
             })}
-            <Button disabled type="primary" size={"middle"} onClick={(e) => addInput()}>Add</Button>
-            <Button type="primary" size={"middle"} onClick={(e) => fetchMessage()}>Submit</Button>
+            <Button type="primary" size={"middle"} onClick={(e) => addInput()}>Add</Button>
+            <Button type="primary" size={"middle"} onClick={(e) => fetchMessages()}>Submit</Button>
             {!isDataFetched && (
-                <Text type="danger">{message}</Text>
+                <Text type="danger">{messages}</Text>
             )}
-            {isDataFetched && (
-                <>
-                    <div
-                        style={{
-                            color: '#889900',
-                            backgroundColor: '#889900',
-                            borderColor: '#889900',
-                            height: 1,
-                            width: 600,
-                        }}
-                    />
-                    <Text type="secondary">
-                        This news article publication date is {openaiResult.date}.
-                        Name of the media is {openaiResult.mediaName}.
-                        Title of the news article is {openaiResult.title}.
-                        <br></br>
-                        Here is a summary of news article: {openaiResult.articleSummary}
-                        <br></br>
-                        Here is a summary on the background of the media: {openaiResult.mediaBackgroundSummary}
-                    </Text>
-                    {/* <Text type="secondary">Name of the media is: {openaiResult.mediaName}</Text>
+            {isDataFetched && openaiResult.map((item, index) => (
+                item && item.date && item.mediaName && item.title ? (
+                    <>
+                        <div
+                            style={{
+                                color: '#889900',
+                                backgroundColor: '#889900',
+                                borderColor: '#889900',
+                                height: 1,
+                                width: 600,
+                            }}
+                        />
+                        <Text type="secondary">
+                            This news article publication date is {item.date}.
+                            Name of the media is {item.mediaName}.
+                            Title of the news article is {item.title}.
+                            <br></br>
+                            Here is a summary of news article: {item.articleSummary}
+                            <br></br>
+                            Here is a summary on the background of the media: {item.mediaBackgroundSummary}
+                        </Text>
+                        {/* <Text type="secondary">Name of the media is: {openaiResult.mediaName}</Text>
                     <Text type="secondary">Title of the news article is: {openaiResult.title}</Text>
                     <Text type="secondary">Here is a summary of news article: {openaiResult.articleSummary}</Text>
                     <Text type="secondary">Here is a summary on the background of the media: {openaiResult.mediaBackgroundSummary}</Text> */}
-                    <Button type="primary" onClick={createAndDownloadDoc}>Download Result as A Word Document</Button>
-                    <div style={{ height: '20px' }} />
-                </>
-            )}
+                        <Button type="primary" onClick={createAndDownloadDoc}>Download Result as A Word Document</Button>
+                        <div style={{ height: '20px' }} />
+                    </>
+                ) : (
+                    <Text type="danger">Error: Data for item {index} is incomplete.</Text>
+                )
+            ))}
         </Space >);
 };
 
