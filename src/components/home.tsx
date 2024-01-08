@@ -64,7 +64,7 @@ const Home: React.FC = () => {
         for (let index = 0; index < arr.length; index++) {
             setIsDataFetched(true);
             const item = arr[index];
-            if (!item.value.includes('https://')) {
+            if (!item.value.includes('http')) {
                 updateMessage(index, 'Invalid URL.');
                 updateOpenAIResult(index, { date: "Invalid URL", mediaName: "Invalid URL", title: "Invalid URL", articleSummary: "Invalid URL", mediaBackgroundSummary: "Invalid URL" });
                 if (index === arr.length - 1) { setIsLoading(false); }
