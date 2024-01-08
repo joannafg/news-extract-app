@@ -3,6 +3,7 @@ import '../index.css';
 import { Input } from 'antd';
 import { Button, Flex, Typography } from 'antd';
 import { Card, Space } from 'antd';
+import { Spin } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, VerticalAlign } from "docx";
@@ -32,6 +33,8 @@ const Home: React.FC = () => {
     const [messages, setMessages] = useState<string[]>([]);
     const [openaiResult, setOpenaiResult] = useState<IOpenAIResult[]>([]);
     const [isDataFetched, setIsDataFetched] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
 
     const updateMessage = (index: number, newMessage: string) => {
         setMessages(currentMessages => {
@@ -56,6 +59,7 @@ const Home: React.FC = () => {
     const fetchMessages = async () => {
         setMessages([]);
         setOpenaiResult([]);
+        setIsLoading(true);
         arr.forEach(async (item, index) => {
             try {
                 const payload = { inputs: [arr[index].value] };
@@ -66,12 +70,14 @@ const Home: React.FC = () => {
                 updateMessage(index, `Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
                 setIsDataFetched(true);
                 console.log(response.data);
+                if (index === arr.length - 1) { setIsLoading(false); }
             } catch (error) {
                 console.error('Error sending data: ', error);
                 updateOpenAIResult(index, { date: "", mediaName: "", title: "", articleSummary: "", mediaBackgroundSummary: "" });
                 updateMessage(index, 'Failed to send data');
                 setIsDataFetched(false);
                 console.log(error);
+                if (index === arr.length - 1) { setIsLoading(false); }
             }
         });
     };
@@ -297,22 +303,27 @@ const Home: React.FC = () => {
             })}
             <Button type="primary" size={"middle"} onClick={(e) => addInput()}>Add</Button>
             <Button type="primary" size={"middle"} onClick={(e) => fetchMessages()}>Submit</Button>
+            {isLoading && <Spin size="large" />}
             {!isDataFetched && (
                 <Text type="danger">{messages}</Text>
             )}
             {isDataFetched && openaiResult.map((item, index) => (
                 item && item.date && item.mediaName && item.title ? (
                     <>
-                        <div
-                            style={{
-                                color: '#889900',
-                                backgroundColor: '#889900',
-                                borderColor: '#889900',
-                                height: 1,
-                                width: 600,
-                            }}
-                        />
+                        {index === 0 && (
+                            <div
+                                style={{
+                                    color: '#889900',
+                                    backgroundColor: '#889900',
+                                    borderColor: '#889900',
+                                    height: 1,
+                                    width: 600,
+                                }}
+                            />
+                        )}
                         <Text type="secondary">
+                            Article {index + 1}'s Extraction Summary
+                            <br></br>
                             This news article publication date is {item.date}.
                             Name of the media is {item.mediaName}.
                             Title of the news article is {item.title}.
@@ -325,11 +336,15 @@ const Home: React.FC = () => {
                     <Text type="secondary">Title of the news article is: {openaiResult.title}</Text>
                     <Text type="secondary">Here is a summary of news article: {openaiResult.articleSummary}</Text>
                     <Text type="secondary">Here is a summary on the background of the media: {openaiResult.mediaBackgroundSummary}</Text> */}
-                        <Button type="primary" onClick={createAndDownloadDoc}>Download Result as A Word Document</Button>
-                        <div style={{ height: '20px' }} />
+                        {index === openaiResult.length - 1 && (
+                            <>
+                                <Button type="primary" onClick={createAndDownloadDoc}>Download Result as A Word Document</Button>
+                                <div style={{ height: '20px' }} />
+                            </>
+                        )}
                     </>
                 ) : (
-                    <Text type="danger">Error: Data for item {index} is incomplete.</Text>
+                    <Text type="danger">{messages[index]}</Text>
                 )
             ))}
         </Space >);
