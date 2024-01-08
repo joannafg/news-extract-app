@@ -352,7 +352,8 @@ const Home: React.FC = () => {
                         )}
                     </>
                 ) : (
-                    <Text type="danger">{messages[index]}</Text>
+                    // <Text type="danger">{messages[index]}</Text>
+                    <Text type="danger">Error: Link {index}</Text>
                 )
             ))}
         </Space >);
