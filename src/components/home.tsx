@@ -81,7 +81,7 @@ const Home: React.FC = () => {
                 // if (index === arr.length - 1) { setIsLoading(false); }
             } catch (error) {
                 console.error('Error sending data: ', error);
-                updateOpenAIResult(index, { date: "", mediaName: "", title: "", articleSummary: "", mediaBackgroundSummary: "" });
+                updateOpenAIResult(index, { date: "Server Error", mediaName: "Server Error", title: "Server Error", articleSummary: "Server Error", mediaBackgroundSummary: "Server Error" });
                 updateMessage(index, 'Failed to send data');
                 console.log(error);
                 // if (index === arr.length - 1) { setIsLoading(false); }
