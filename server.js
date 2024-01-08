@@ -172,7 +172,7 @@ app.post('/submit', async (req, res) => {
     `;
 
     const chatCompletion = await openai.chat.completions.create({
-      model: "gpt-4-1106-preview",
+      model: "gpt-3.5-turbo", //"gpt-4-1106-preview",
       messages: [{"role": "user", "content": combinedPrompt}, ],
     });
 
