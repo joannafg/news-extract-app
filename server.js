@@ -33,8 +33,22 @@ const scrapeContent = async (url) => {
 
     return content.trim();
   } catch (error) {
-    console.error(`Error scraping content: ${error.message}`);
-    return null;
+    console.error(`Error scraping content with Cheerio: ${error.message}`);
+    try {
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      await page.goto(url, { waitUntil: 'networkidle2' });
+
+      const puppeteerContent = await page.evaluate(() => {
+        return document.querySelector('body').innerText;
+      });
+
+      await browser.close();
+      return puppeteerContent.trim();
+    } catch (puppeteerError) {
+      console.error(`Error scraping content with Puppeteer: ${puppeteerError.message}`);
+      return null;
+    }
   }
 };
 
