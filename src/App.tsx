@@ -51,6 +51,7 @@ function App() {
         <div style={{ width: '50%' }}>
           <Home />
         </div>
+        <div style={{ height: '20px' }} />
         <div
           style={{
             color: '#889900',

@@ -60,7 +60,14 @@ const Home: React.FC = () => {
         setMessages([]);
         setOpenaiResult([]);
         setIsLoading(true);
-        arr.forEach(async (item, index) => {
+        for (let index = 0; index < arr.length; index++) {
+            const item = arr[index];
+            if (!item.value.includes('https://')) {
+                updateMessage(index, 'Invalid URL.');
+                updateOpenAIResult(index, { date: "Invalid URL", mediaName: "Invalid URL", title: "Invalid URL", articleSummary: "Invalid URL", mediaBackgroundSummary: "Invalid URL" });
+                if (index === arr.length - 1) { setIsLoading(false); }
+                continue; // Skip this iteration because the URL is not valid
+            }
             try {
                 const payload = { inputs: [arr[index].value] };
                 const response = await axios.post('https://pacific-stream-59101-283446563bde.herokuapp.com/submit', payload);
@@ -70,16 +77,17 @@ const Home: React.FC = () => {
                 updateMessage(index, `Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
                 setIsDataFetched(true);
                 console.log(response.data);
-                if (index === arr.length - 1) { setIsLoading(false); }
+                // if (index === arr.length - 1) { setIsLoading(false); }
             } catch (error) {
                 console.error('Error sending data: ', error);
                 updateOpenAIResult(index, { date: "", mediaName: "", title: "", articleSummary: "", mediaBackgroundSummary: "" });
                 updateMessage(index, 'Failed to send data');
                 setIsDataFetched(false);
                 console.log(error);
-                if (index === arr.length - 1) { setIsLoading(false); }
+                // if (index === arr.length - 1) { setIsLoading(false); }
             }
-        });
+            if (index === arr.length - 1) { setIsLoading(false); }
+        };
     };
 
 
@@ -313,11 +321,11 @@ const Home: React.FC = () => {
                         {index === 0 && (
                             <div
                                 style={{
-                                    color: '#889900',
-                                    backgroundColor: '#889900',
                                     borderColor: '#889900',
-                                    height: 1,
+                                    borderStyle: 'dotted',
+                                    borderWidth: '1px',
                                     width: 600,
+                                    height: 'auto',
                                 }}
                             />
                         )}
