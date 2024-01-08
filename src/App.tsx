@@ -46,7 +46,7 @@ function App() {
         flexDirection: 'column',
         minHeight: '100vh',
         overflow: 'auto',
-        padding: '0 20px',
+        padding: '20px 20px',
       }}>
         <div style={{ width: '50%' }}>
           <Home />

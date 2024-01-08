@@ -223,14 +223,14 @@ const Home: React.FC = () => {
 
                         ],
                     }),
-                    ...openaiResult.flatMap(result => [
+                    ...openaiResult.flatMap((result, index) => [
                         new Paragraph(''),
 
                         // MediaName, Title, and Date
                         new Paragraph({
                             children: [
                                 new TextRun({
-                                    text: `1.1 ${result.mediaName}: ${result.title} (Dated on ${result.date})`,
+                                    text: `1.${index + 1} ${result.mediaName}: ${result.title} (Dated on ${result.date})`,
                                     bold: true,
                                 }),
                             ],
