@@ -35,7 +35,7 @@ const scrapeContent = async (url) => {
   } catch (error) {
     console.error(`Error scraping content with Cheerio: ${error.message}`);
     try {
-      const browser = await puppeteer.launch();
+      const browser = await puppeteer.launch({ headless: "new" });
       const page = await browser.newPage();
       await page.goto(url, { waitUntil: 'networkidle2' , timeout: 6000 });
 
