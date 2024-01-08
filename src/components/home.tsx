@@ -60,6 +60,7 @@ const Home: React.FC = () => {
         setMessages([]);
         setOpenaiResult([]);
         setIsLoading(true);
+        setIsDataFetched(false)
         for (let index = 0; index < arr.length; index++) {
             const item = arr[index];
             if (!item.value.includes('https://')) {
@@ -82,7 +83,7 @@ const Home: React.FC = () => {
                 console.error('Error sending data: ', error);
                 updateOpenAIResult(index, { date: "", mediaName: "", title: "", articleSummary: "", mediaBackgroundSummary: "" });
                 updateMessage(index, 'Failed to send data');
-                setIsDataFetched(false);
+                // setIsDataFetched(false);
                 console.log(error);
                 // if (index === arr.length - 1) { setIsLoading(false); }
             }
@@ -312,9 +313,9 @@ const Home: React.FC = () => {
             <Button type="primary" size={"middle"} onClick={(e) => addInput()}>Add</Button>
             <Button type="primary" size={"middle"} onClick={(e) => fetchMessages()}>Submit</Button>
             {isLoading && <Spin size="large" />}
-            {!isDataFetched && (
+            {/* {!isDataFetched && (
                 <Text type="danger">{messages}</Text>
-            )}
+            )} */}
             {isDataFetched && openaiResult.map((item, index) => (
                 item && item.date && item.mediaName && item.title ? (
                     <>
