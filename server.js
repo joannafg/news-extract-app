@@ -140,19 +140,19 @@ app.post('/submit', async (req, res) => {
     // });
 
     const combinedPrompt = `
-    I have a news article which I need some information about. First, please translate the following text to English: 
+    I have a news article from which I need specific information extracted and summarized. Firstly, translate the following text to English:
 
     ${preparedContent}
 
-    After translating, based on the content, please provide the following details in a structured format:
+    After translating, please organize the extracted information into a clearly structured format as follows:
 
-    1. The date of the news article.
-    2. The name of the media or publication where this article was published.
-    3. The title of the news article.
-    4. A positive summary of the news article.
-    5. A positive summary about the background of the media or publication.
+    1. Date of the News Article: [Provide the publication date here]
+    2. Media/Publication Name: [Provide the name of the media or publication here]
+    3. Article Title: [Provide the title of the news article here]
+    4. Article Summary: [Provide a positive, concise summary of the news article here]
+    5. Background of the Media/Publication: [Provide a positive summary of the media or publication's background here]
 
-    Please present all this information clearly and concisely.
+    Please ensure each piece of information is succinctly presented right after its corresponding number and label.
     `;
 
     const chatCompletion = await openai.chat.completions.create({
