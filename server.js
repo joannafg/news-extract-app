@@ -117,7 +117,7 @@ app.post('/submit', async (req, res) => {
       throw new Error('Failed to scrape content or content is empty.');
     }
 
-    const preparedContent = cleanAndTruncateText(scrapedContent, 1000);
+    const preparedContent = cleanAndTruncateText(scrapedContent, 1200);
 
     const translationPrompt = `Translate the following text to English:\n\n${preparedContent}`;
     const datePrompt = `Based on the previously translated article, give me the date of the publication in the format of "date": "September 1, 2021"`;
