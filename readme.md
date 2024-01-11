@@ -10,3 +10,5 @@ heroku logs --tail -->
 appname: news-extract-app-fly
 
 fly info -a
+flyctl status -a news-extract-app
+flyctl logs -a news-extract-app-fly
