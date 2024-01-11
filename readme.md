@@ -8,7 +8,7 @@ heroku logs -n 200
 heroku logs --tail -->
 
 appname: news-extract-app-fly
-
-fly info -a
-flyctl status -a news-extract-app
+flyctl deploy -a news-extract-app-fly
+fly info -a news-extract-app-fly
+flyctl status -a news-extract-app-fly
 flyctl logs -a news-extract-app-fly
