@@ -31,10 +31,12 @@ const scrapeContent = async (url) => {
     const $ = cheerio.load(data);
 
     // Remove script and style elements
-    $('script, style, header, footer, nav').remove();
+    // $('script, style, header, footer, nav').remove();
+    $('script, style').remove();
 
     // Attempt to get text from body or main content areas
-    const content = $('main, article, section, .content, .article, .post, body').text();
+    // const content = $('main, article, section, .content, .article, .post, body').text();
+    const content = $('body').text();
 
     return content.trim();
   } catch (error) {
@@ -42,7 +44,7 @@ const scrapeContent = async (url) => {
     try {
       const browser = await puppeteer.launch({ headless: "new" });
       const page = await browser.newPage();
-      await page.goto(url, { waitUntil: 'networkidle2' , timeout: 6000 });
+      await page.goto(url, { waitUntil: 'networkidle2' , timeout: 30000 });
 
       const puppeteerContent = await page.evaluate(() => {
         return document.querySelector('body').innerText;
@@ -140,41 +142,39 @@ app.post('/submit', async (req, res) => {
 
     const preparedContent = cleanAndTruncateText(scrapedContent, 1200);
 
-    const translationPrompt = `Translate the following text to English:\n\n${preparedContent}`;
-    const datePrompt = `Based on the previously translated article, give me the date of the publication in the format of "date": "September 1, 2021"`;
-    const mediaNamePrompt = `Based on the previously translated article, give me the name of the media/publication in the format of "mediaName": "Parenting Science Magazine" `;
-    const titlePrompt = `Based on the previously translated article, give me the title of the news article in the format of "title": "Drama in Education, A “Shortcut” Enriching Children’s Life Experience"`;
-    const articleSummaryPrompt = `Based on the previously translated article and online resources, give me a longer positive summary of news article in the format of  "articleSummary": "..." `;
-    const mediaBackgroundSummaryPrompt = `Based on the previously translated article and online resources, give me a postive summary about the background of the media/publication in the format of "mediaBackgroundSummary": "..."`;
+    // const combinedPrompt = `
+    // I have a news article from which I need specific information extracted and summarized. Firstly, translate the following text to English:
 
-    // const translationResponse = await getChatResponse(translationPrompt);
-    // const dateResponse = await getChatResponse(translationResponse+"\n\n"+datePrompt);
+    // ${preparedContent}
 
-    // const chatCompletion = await openai.chat.completions.create({
-    //   model: "gpt-3.5-turbo",
-    //   messages: [{"role": "user", "content": translationPrompt}, 
-    //   {"role": "user", "content": datePrompt}, 
-    //   {"role": "user", "content": mediaNamePrompt}, 
-    //   {"role": "user", "content": titlePrompt}, 
-    //   {"role": "user", "content": articleSummaryPrompt}, 
-    //   {"role": "user", "content": mediaBackgroundSummaryPrompt},],
-    // });
+    // After translating, please organize the extracted information into a clearly structured format as follows:
+
+    // 1. Date of the News Article: [Provide the publication date here]
+    // 2. Media/Publication Name: [Provide the name of the media or publication here]
+    // 3. Article Title: [Provide the title of the news article here]
+    // 4. Article Summary: [Provide a positive, concise summary of the news article here]
+    // 5. Background of the Media/Publication: [Provide a positive summary of the media or publication's background here]
+
+    // Please ensure each piece of information is succinctly presented right after its corresponding number and label.
+    // `;
 
     const combinedPrompt = `
-    I have a news article from which I need specific information extracted and summarized. Firstly, translate the following text to English:
+    I have a news article for which I need specific information extracted and summarized. The article's URL is ${userData.inputs[0]}. Firstly, translate the following text to English:
 
     ${preparedContent}
 
     After translating, please organize the extracted information into a clearly structured format as follows:
 
-    1. Date of the News Article: [Provide the publication date here]
-    2. Media/Publication Name: [Provide the name of the media or publication here]
-    3. Article Title: [Provide the title of the news article here]
+    1. Date of the News Article: [Provide the publication date here, if available in the content; otherwise, please infer from the URL or state 'Unknown']
+    2. Media/Publication Name: [If not clear from the content, deduce the name of the media or publication from the URL: ${userData.inputs[0]}]
+    3. Article Title: [Provide the title of the news article here; if not available in the content, please infer from the article's URL]
     4. Article Summary: [Provide a positive, concise summary of the news article here]
-    5. Background of the Media/Publication: [Provide a positive summary of the media or publication's background here]
+    5. Background of the Media/Publication: [If not available in the content, please find and provide a positive summary about the background of the media or publication from online sources]
 
     Please ensure each piece of information is succinctly presented right after its corresponding number and label.
     `;
+
+
 
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo", //"gpt-4-1106-preview",
