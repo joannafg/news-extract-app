@@ -3,13 +3,13 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "news-extract-app"
+app = "news-extract-app-fly"
 primary_region = "atl"
 
 [build]
 
 [http_service]
-  internal_port = 3001   
+  internal_port = 3000   
   protocol = "tcp"
   force_https = true
   auto_stop_machines = true
