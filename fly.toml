@@ -9,12 +9,17 @@ primary_region = "atl"
 [build]
 
 [http_service]
-  internal_port = 3000
+  internal_port = 3001   
+  protocol = "tcp"
   force_https = true
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 0
   processes = ["app"]
+
+[[services.ports]]
+  handlers = ["http"]
+  port = 3000   
 
 [[vm]]
   cpu_kind = "shared"
