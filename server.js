@@ -24,18 +24,19 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-
+/**
+ * Scrapes the content from a given URL using Cheerio and Puppeteer.
+ * If Cheerio fails to scrape, Puppeteer is used as a fallback.
+ * @param {string} url - The URL of the webpage to scrape.
+ * @returns {string|null} - The scraped content as a string, or null if an error occurs.
+ */
 const scrapeContent = async (url) => {
   try {
     const { data } = await axios.get(url);
     const $ = cheerio.load(data);
 
-    // Remove script and style elements
-    // $('script, style, header, footer, nav').remove();
     $('script, style').remove();
 
-    // Attempt to get text from body or main content areas
-    // const content = $('main, article, section, .content, .article, .post, body').text();
     const content = $('body').text();
 
     return content.trim();
@@ -59,23 +60,38 @@ const scrapeContent = async (url) => {
   }
 };
 
-// Function to clean and truncate text
+/**
+ * Cleans and truncates a given text to a maximum character limit.
+ * Removes extra whitespace and line breaks, and truncates if longer than maxChars.
+ * @param {string} text - The text to be cleaned and truncated.
+ * @param {number} maxChars - The maximum number of characters the text should have.
+ * @returns {string} - The cleaned and possibly truncated text.
+ */
 const cleanAndTruncateText = (text, maxChars) => {
-  // Remove irrelevant characters using regular expression
   let cleanedText = text.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
 
-  // Truncate to approximate token limit
   return cleanedText.length > maxChars ? cleanedText.slice(0, maxChars) + '...' : cleanedText;
 };
 
+/**
+ * Extracts the substring after the first colon found in the input string.
+ * @param {string} inputString - The string containing the colon-separated data.
+ * @returns {string} - The substring after the colon, or an empty string if no colon is found.
+ */
 function extractAfterColon(inputString) {
   const parts = inputString.split(': ');
   if (parts.length > 1) {
-      return parts[1].trim(); // Return the part after the colon
+      return parts[1].trim(); 
   }
-  return ''; // Return empty string if no colon was found
+  return ''; 
 }
 
+/**
+ * Parses the response from the OpenAI API and extracts structured data.
+ * The response is expected to have specific markers (like '1.', '2.', etc.) to identify sections.
+ * @param {string} response - The response string from the OpenAI API.
+ * @returns {object} - An object containing parsed data with keys like date, mediaName, title, etc.
+ */
 function parseAIResponse(response) {
   const lines = response.split('\n');
     let parsedData = {
@@ -116,12 +132,11 @@ function parseAIResponse(response) {
     return parsedData;
 }
 
-
-// Test route
-app.get('/', (req, res) => {
-  res.send('Successfully fetched from backend : )');
-});
-
+/**
+ * Sends a message to OpenAI's chat completion and returns the response.
+ * @param {string} message - The message content to send to the OpenAI API.
+ * @returns {Promise<string>} - A promise that resolves to the response message from OpenAI.
+ */
 async function getChatResponse(message) {
   const response = await openai.chat.completions.create({
     model: "gpt-3.5-turbo",
@@ -130,9 +145,26 @@ async function getChatResponse(message) {
   return response.choices[0].message;
 }
 
+/**
+ * Express GET route handler for the root path. Sends a success message.
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @returns {void}
+ */
+app.get('/', (req, res) => {
+  res.send('Successfully fetched from backend : )');
+});
+
+/**
+ * Express POST route handler for submitting and processing data.
+ * Receives a user request with a URL or text content, processes it, and returns the result.
+ * @param {object} req - The request object, containing user data in its body.
+ * @param {object} res - The response object used to send back the processed data.
+ * @returns {void}
+ */
 app.post('/submit', async (req, res) => {
   const userData = req.body;
-  console.log(userData);  // Log the user data
+  console.log(userData);  
 
   try {
     const scrapedContent = await scrapeContent(userData.inputs[0]);
@@ -141,22 +173,6 @@ app.post('/submit', async (req, res) => {
     }
 
     const preparedContent = cleanAndTruncateText(scrapedContent, 1200);
-
-    // const combinedPrompt = `
-    // I have a news article from which I need specific information extracted and summarized. Firstly, translate the following text to English:
-
-    // ${preparedContent}
-
-    // After translating, please organize the extracted information into a clearly structured format as follows:
-
-    // 1. Date of the News Article: [Provide the publication date here]
-    // 2. Media/Publication Name: [Provide the name of the media or publication here]
-    // 3. Article Title: [Provide the title of the news article here]
-    // 4. Article Summary: [Provide a positive, concise summary of the news article here]
-    // 5. Background of the Media/Publication: [Provide a positive summary of the media or publication's background here]
-
-    // Please ensure each piece of information is succinctly presented right after its corresponding number and label.
-    // `;
 
     const combinedPrompt = `
     I have a news article for which I need specific information extracted and summarized. The article's URL is ${userData.inputs[0]}. Firstly, translate the following text to English:
@@ -174,8 +190,6 @@ app.post('/submit', async (req, res) => {
     Please ensure each piece of information is succinctly presented right after its corresponding number and label.
     `;
 
-
-
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo", //"gpt-4-1106-preview",
       messages: [{"role": "user", "content": combinedPrompt}, ],
@@ -184,15 +198,10 @@ app.post('/submit', async (req, res) => {
     const aiResponse = chatCompletion.choices[0].message.content;
     const parsedResponse = parseAIResponse(aiResponse);
 
-    // Send a response back to the frontend
     res.json({ 
       scrapedContent: scrapedContent,
       processedContent: preparedContent,  
-      // combinedPrompt: combinedPrompt, 
-      // receivedData: userData.inputs, 
       message: "Data received successfully!", 
-      // chatCompletion: chatCompletion, 
-      // openaiResult: "...", 
       parsedData: parsedResponse
     });
   } catch (error) {
