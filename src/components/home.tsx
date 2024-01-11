@@ -72,7 +72,7 @@ const Home: React.FC = () => {
             }
             try {
                 const payload = { inputs: [arr[index].value] };
-                const response = await axios.post('https://news-extract-app.fly.dev/submit', payload);
+                const response = await axios.post('https://news-extract-app-fly.fly.dev/submit', payload);
                 // const response = await axios.post('http://localhost:3001/submit', payload);
 
                 updateOpenAIResult(index, response.data.parsedData);
