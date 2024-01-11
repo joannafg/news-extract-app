@@ -22,18 +22,19 @@ interface IOpenAIResult {
 
 const Home: React.FC = () => {
 
-    const initialOpenAIResult = {
-        date: "",
-        mediaName: "",
-        title: "",
-        articleSummary: "",
-        mediaBackgroundSummary: ""
-    };
+    const inputArr: { id: number, type: string, value: string }[] = [
+        {
+            type: "text",
+            id: uid(),
+            value: ""
+        }
+    ];
 
     const [messages, setMessages] = useState<string[]>([]);
     const [openaiResult, setOpenaiResult] = useState<IOpenAIResult[]>([]);
     const [isDataFetched, setIsDataFetched] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [arr, setArr] = useState(inputArr);
 
 
     const updateMessage = (index: number, newMessage: string) => {
@@ -78,13 +79,11 @@ const Home: React.FC = () => {
                 updateOpenAIResult(index, response.data.parsedData);
                 updateMessage(index, `Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
                 console.log(response.data);
-                // if (index === arr.length - 1) { setIsLoading(false); }
             } catch (error) {
                 console.error('Error sending data: ', error);
                 updateOpenAIResult(index, { date: "Server Error", mediaName: "Server Error", title: "Server Error", articleSummary: "Server Error", mediaBackgroundSummary: "Server Error" });
                 updateMessage(index, 'Failed to send data');
                 console.log(error);
-                // if (index === arr.length - 1) { setIsLoading(false); }
             }
             if (index === arr.length - 1) { setIsLoading(false); }
         };
@@ -97,19 +96,8 @@ const Home: React.FC = () => {
         return Date.now() + Math.floor(Math.random() * 1000);
     };
 
-    const inputArr: { id: number, type: string, value: string }[] = [
-        {
-            type: "text",
-            id: uid(),
-            value: ""
-        }
-    ];
-
-    const [arr, setArr] = useState(inputArr);
-
     const addInput = () => {
         setArr(s => {
-            // const lastId = s[s.length - 1].id;
             return [
                 ...s,
                 {
@@ -312,9 +300,6 @@ const Home: React.FC = () => {
             <Button type="primary" size={"middle"} onClick={(e) => addInput()}>Add</Button>
             <Button type="primary" size={"middle"} onClick={(e) => fetchMessages()}>Submit</Button>
             {isLoading && <Spin size="large" />}
-            {/* {!isDataFetched && (
-                <Text type="danger">{messages}</Text>
-            )} */}
             {isDataFetched && openaiResult.map((item, index) => (
                 <>
                     {index === 0 && (
@@ -330,7 +315,6 @@ const Home: React.FC = () => {
                     )}
                     {item && item.date && item.mediaName && item.title ? (
                         <>
-
                             <Text type="secondary">
                                 Article <strong>{index + 1}</strong>'s Extraction Summary
                                 <br></br>
@@ -342,14 +326,8 @@ const Home: React.FC = () => {
                                 <br></br>
                                 Here is a summary on the background of the media: <strong>{item.mediaBackgroundSummary}</strong>
                             </Text>
-                            {/* <Text type="secondary">Name of the media is: {openaiResult.mediaName}</Text>
-                    <Text type="secondary">Title of the news article is: {openaiResult.title}</Text>
-                    <Text type="secondary">Here is a summary of news article: {openaiResult.articleSummary}</Text>
-                    <Text type="secondary">Here is a summary on the background of the media: {openaiResult.mediaBackgroundSummary}</Text> */}
-
                         </>
                     ) : (
-                        // <Text type="danger">{messages[index]}</Text>
                         <Text type="danger">Error: Link {index + 1}</Text>
                     )}
                     {index === openaiResult.length - 1 && (
