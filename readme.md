@@ -8,3 +8,5 @@ heroku logs -n 200
 heroku logs --tail -->
 
 appname: news-extract-app-fly
+
+fly info -a
