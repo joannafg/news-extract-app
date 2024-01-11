@@ -22,6 +22,10 @@ interface IOpenAIResult {
 
 const Home: React.FC = () => {
 
+    const uid = function () {
+        return Date.now() + Math.floor(Math.random() * 1000);
+    };
+
     const inputArr: { id: number, type: string, value: string }[] = [
         {
             type: "text",
@@ -91,10 +95,6 @@ const Home: React.FC = () => {
 
 
     //https://stackoverflow.com/questions/66469913/how-to-add-input-field-dynamically-when-user-click-on-button-in-react-js
-
-    const uid = function () {
-        return Date.now() + Math.floor(Math.random() * 1000);
-    };
 
     const addInput = () => {
         setArr(s => {
