@@ -10,6 +10,8 @@ import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, Verti
 
 
 const { Text, Link } = Typography;
+const { TextArea } = Input;
+
 
 interface IOpenAIResult {
     date: string;
@@ -28,7 +30,7 @@ const Home: React.FC = () => {
 
     const inputArr: { id: number, type: string, value: string }[] = [
         {
-            type: "text",
+            type: "link",
             id: uid(),
             value: ""
         }
@@ -97,18 +99,15 @@ const Home: React.FC = () => {
     //https://stackoverflow.com/questions/66469913/how-to-add-input-field-dynamically-when-user-click-on-button-in-react-js
 
     const addInput = () => {
-        setArr(s => {
-            return [
-                ...s,
-                {
-                    type: "text",
-                    value: "",
-                    id: uid()
-                }
-            ];
-        });
+        setArr(s => [...s, { type: "link", value: "", id: uid() }]);
         console.log(arr);
     };
+
+    const addTextArea = () => {
+        setArr(s => [...s, { type: "article", value: "", id: uid() }]);
+        console.log(arr);
+    };
+
 
     const deleteInput = (e: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => {
         e.preventDefault();
@@ -123,17 +122,24 @@ const Home: React.FC = () => {
         });
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
+    // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     e.preventDefault();
 
-        const index = Number(e.target.id);
-        setArr(s => {
-            const newArr = s.slice();
-            newArr[index].value = e.target.value;
+    //     const index = Number(e.target.id);
+    //     setArr(s => {
+    //         const newArr = s.slice();
+    //         newArr[index].value = e.target.value;
 
-            return newArr;
-        });
+    //         return newArr;
+    //     });
+    // };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
+        const newArr = [...arr];
+        newArr[index].value = e.target.value;
+        setArr(newArr);
     };
+
 
     const createAndDownloadDoc = () => {
         const doc = new Document({
@@ -284,20 +290,33 @@ const Home: React.FC = () => {
             {arr.map((item, i) => {
                 return (
                     <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
-                        <Input
-                            onChange={handleChange}
-                            value={item.value}
-                            id={i.toString()}
-                            type={item.type}
-                            size="middle"
-                            style={{ width: 400 }}
-                            placeholder="paste your link here"
-                        />
+                        {item.type === "link" ? (
+                            <Input
+                                onChange={(e) => handleChange(e, i)}
+                                value={item.value}
+                                id={i.toString()}
+                                size="middle"
+                                style={{ width: 400 }}
+                                placeholder="Paste your link here"
+                            />
+                        ) : (
+                            <TextArea
+                                onChange={(e) => handleChange(e, i)}
+                                value={item.value}
+                                id={i.toString()}
+                                size="middle"
+                                style={{ width: 400 }}
+                                placeholder="Paste your article here"
+                                maxLength={3000}
+                                autoSize={{ minRows: 3, maxRows: 6 }}
+                            />
+                        )}
                         <Button type="primary" icon={<DeleteOutlined />} onClick={(e) => deleteInput(e, i)} size={"middle"} />
                     </Space >
                 );
             })}
-            <Button type="primary" size={"middle"} onClick={(e) => addInput()}>Add</Button>
+            <Button type="primary" size={"middle"} onClick={(e) => addInput()}>Add New Link</Button>
+            <Button type="primary" size={"middle"} onClick={addTextArea}>Add New Article</Button>
             <Button type="primary" size={"middle"} onClick={(e) => fetchMessages()}>Submit</Button>
             {isLoading && <Spin size="large" />}
             {isDataFetched && openaiResult.map((item, index) => (
