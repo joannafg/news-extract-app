@@ -178,16 +178,17 @@ app.get('/', (req, res) => {
  */
 app.post('/submit', async (req, res) => {
   const userData = req.body;
-  console.log(userData);  
+  console.log(userData);
+  let scrapedContent;   
 
   try {
     if(isValidUrl(userData.inputs[0])) {
-      const scrapedContent = await scrapeContent(userData.inputs[0]);
+      scrapedContent = await scrapeContent(userData.inputs[0]);
       if (!scrapedContent) {
         throw new Error('Failed to scrape content or content is empty.');
       }
     } else {
-      const scrapedContent = userData.inputs[0]; 
+      scrapedContent = userData.inputs[0]; 
     }
     
     const preparedContent = cleanAndTruncateText(scrapedContent, 1200);
