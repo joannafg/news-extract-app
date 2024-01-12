@@ -146,6 +146,20 @@ async function getChatResponse(message) {
 }
 
 /**
+ * Determines if a given string is a valid URL.
+ * @param {string} str - The string to check.
+ * @returns {boolean} - True if the string is a URL, false otherwise.
+ */
+const isValidUrl = (str) => {
+  try {
+    new URL(str);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
+/**
  * Express GET route handler for the root path. Sends a success message.
  * @param {object} req - The request object.
  * @param {object} res - The response object.
@@ -167,11 +181,15 @@ app.post('/submit', async (req, res) => {
   console.log(userData);  
 
   try {
-    const scrapedContent = await scrapeContent(userData.inputs[0]);
-    if (!scrapedContent) {
-      throw new Error('Failed to scrape content or content is empty.');
+    if(isValidUrl(userData.inputs[0])) {
+      const scrapedContent = await scrapeContent(userData.inputs[0]);
+      if (!scrapedContent) {
+        throw new Error('Failed to scrape content or content is empty.');
+      }
+    } else {
+      const scrapedContent = userData.inputs[0]; 
     }
-
+    
     const preparedContent = cleanAndTruncateText(scrapedContent, 1200);
 
     const combinedPrompt = `
