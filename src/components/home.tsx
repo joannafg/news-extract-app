@@ -71,12 +71,12 @@ const Home: React.FC = () => {
         for (let index = 0; index < arr.length; index++) {
             setIsDataFetched(true);
             const item = arr[index];
-            if (!item.value.includes('http')) {
-                updateMessage(index, 'Invalid URL.');
-                updateOpenAIResult(index, { date: "Invalid URL", mediaName: "Invalid URL", title: "Invalid URL", articleSummary: "Invalid URL", mediaBackgroundSummary: "Invalid URL" });
-                if (index === arr.length - 1) { setIsLoading(false); }
-                continue; // Skip this iteration because the URL is not valid
-            }
+            // if (!item.value.includes('http')) {
+            //     updateMessage(index, 'Invalid URL.');
+            //     updateOpenAIResult(index, { date: "Invalid URL", mediaName: "Invalid URL", title: "Invalid URL", articleSummary: "Invalid URL", mediaBackgroundSummary: "Invalid URL" });
+            //     if (index === arr.length - 1) { setIsLoading(false); }
+            //     continue; // Skip this iteration because the URL is not valid
+            // }
             try {
                 const payload = { inputs: [arr[index].value] };
                 const response = await axios.post('https://news-extract-app-fly.fly.dev/submit', payload);
