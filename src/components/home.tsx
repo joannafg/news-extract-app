@@ -63,53 +63,76 @@ const Home: React.FC = () => {
         });
     };
 
+    function handleAxiosError(error: unknown, index: number, retries: number, maxRetries: number) {
+        console.error('Error sending data: ', error);
+        let errorMessage = "Server Error: Unknown";
+
+        if (axios.isAxiosError(error)) {
+            errorMessage = error.message;
+            if (error.response) {
+                errorMessage += " " + error.response.data;
+            } else if (error.request) {
+                errorMessage += " No response received";
+            }
+        } else if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+
+        if (retries < maxRetries) {
+            retries++;
+        } else {
+            updateOpenAIResult(index, { date: errorMessage, mediaName: errorMessage, title: errorMessage, articleSummary: errorMessage, mediaBackgroundSummary: errorMessage });
+            updateMessage(index, errorMessage);
+        }
+    }
+
+    function isValidUrl(str: string) {
+        try {
+            new URL(str);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
+
     const fetchMessages = async () => {
+        console.log(arr);
         setMessages([]);
         setOpenaiResult([]);
         setIsLoading(true);
-        setIsDataFetched(false)
+        setIsDataFetched(true);
+        const maxRetries = 2; // Set your desired retry limit
+
         for (let index = 0; index < arr.length; index++) {
-            setIsDataFetched(true);
-            const item = arr[index];
-            // if (!item.value.includes('http')) {
-            //     updateMessage(index, 'Invalid URL.');
-            //     updateOpenAIResult(index, { date: "Invalid URL", mediaName: "Invalid URL", title: "Invalid URL", articleSummary: "Invalid URL", mediaBackgroundSummary: "Invalid URL" });
-            //     if (index === arr.length - 1) { setIsLoading(false); }
-            //     continue; // Skip this iteration because the URL is not valid
-            // }
-            try {
-                const payload = { inputs: [arr[index].value] };
-                const response = await axios.post('https://news-extract-app-fly.fly.dev/submit', payload);
-                // const response = await axios.post('http://localhost:3001/submit', payload);
+            let retries = 0;
+            const input = arr[index].value.trim();
+            const isLink = arr[index].type === "link";
+            const isValidInput = input.length > 0 && (!isLink || isValidUrl(input));
 
-                updateOpenAIResult(index, response.data.parsedData);
-                updateMessage(index, `Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
-                console.log(response.data);
-            } catch (error) {
-                console.error('Error sending data: ', error);
-                let errorMessage = "Server Error: Unknown";
+            while (retries <= maxRetries && isValidInput) {
+                try {
+                    const payload = { inputs: [input] };
+                    const response = await axios.post('https://news-extract-app-fly.fly.dev/submit', payload);
 
-                // Check if error is an AxiosError
-                if (axios.isAxiosError(error)) {
-                    // Error related to the Axios request or response
-                    errorMessage = error.message;
-                    if (error.response) {
-                        // Server responded with a status code outside the 2xx range
-                        errorMessage += " " + error.response.data;
-                    } else if (error.request) {
-                        // Request made but no response received
-                        errorMessage += " No response received";
+                    const isEmptyString = Object.values(response.data.parsedData).some(value => value === "");
+                    if (isEmptyString && retries < maxRetries) {
+                        retries++;
+                        continue;
                     }
-                } else {
-                    // Error is not an Axios error (could be something else like a programming error)
-                    if (error instanceof Error) {
-                        errorMessage = error.message;
-                    }
+                    updateOpenAIResult(index, response.data.parsedData);
+                    updateMessage(index, `Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
+                } catch (error) {
+                    handleAxiosError(error, index, retries, maxRetries);
                 }
-                updateOpenAIResult(index, { date: errorMessage, mediaName: errorMessage, title: errorMessage, articleSummary: errorMessage, mediaBackgroundSummary: errorMessage });
-                updateMessage(index, 'Failed to send data');
-                console.log(error);
             }
+
+            if (!isValidInput) {
+                console.log("111111")
+                const errorMessage = isLink ? "The link provided is not valid, please input a valid link" : "It is empty, please input a link or paste the article";
+                updateOpenAIResult(index, { date: errorMessage, mediaName: errorMessage, title: errorMessage, articleSummary: errorMessage, mediaBackgroundSummary: errorMessage });
+                updateMessage(index, errorMessage);
+            }
+
             if (index === arr.length - 1) { setIsLoading(false); }
         };
     };
@@ -119,7 +142,6 @@ const Home: React.FC = () => {
 
     const addInput = () => {
         setArr(s => [...s, { type: "link", value: "", id: uid() }]);
-        console.log(arr);
     };
 
     const addTextArea = () => {
