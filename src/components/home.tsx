@@ -87,7 +87,26 @@ const Home: React.FC = () => {
                 console.log(response.data);
             } catch (error) {
                 console.error('Error sending data: ', error);
-                updateOpenAIResult(index, { date: "Server Error", mediaName: "Server Error", title: "Server Error", articleSummary: "Server Error", mediaBackgroundSummary: "Server Error" });
+                let errorMessage = "Server Error: Unknown";
+
+                // Check if error is an AxiosError
+                if (axios.isAxiosError(error)) {
+                    // Error related to the Axios request or response
+                    errorMessage = error.message;
+                    if (error.response) {
+                        // Server responded with a status code outside the 2xx range
+                        errorMessage += " " + error.response.data;
+                    } else if (error.request) {
+                        // Request made but no response received
+                        errorMessage += " No response received";
+                    }
+                } else {
+                    // Error is not an Axios error (could be something else like a programming error)
+                    if (error instanceof Error) {
+                        errorMessage = error.message;
+                    }
+                }
+                updateOpenAIResult(index, { date: errorMessage, mediaName: errorMessage, title: errorMessage, articleSummary: errorMessage, mediaBackgroundSummary: errorMessage });
                 updateMessage(index, 'Failed to send data');
                 console.log(error);
             }
