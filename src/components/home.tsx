@@ -121,13 +121,14 @@ const Home: React.FC = () => {
                     }
                     updateOpenAIResult(index, response.data.parsedData);
                     updateMessage(index, `Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
+                    console.log(response);
                 } catch (error) {
                     handleAxiosError(error, index, retries, maxRetries);
+                    console.log(error);
                 }
             }
 
             if (!isValidInput) {
-                console.log("111111")
                 const errorMessage = isLink ? "The link provided is not valid, please input a valid link" : "It is empty, please input a link or paste the article";
                 updateOpenAIResult(index, { date: errorMessage, mediaName: errorMessage, title: errorMessage, articleSummary: errorMessage, mediaBackgroundSummary: errorMessage });
                 updateMessage(index, errorMessage);
