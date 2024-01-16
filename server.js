@@ -71,7 +71,10 @@ const scrapeContent = async (url) => {
  * @returns {string} - The cleaned and possibly truncated text.
  */
 const cleanAndTruncateText = (text, maxChars) => {
-  let cleanedText = text.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+  let cleanedText = text
+        .replace(/[\r\n\t]+/g, ' ') 
+        .replace(/\s+/g, ' ') 
+        .trim();
 
   return cleanedText.length > maxChars ? cleanedText.slice(0, maxChars) + '...' : cleanedText;
 };
