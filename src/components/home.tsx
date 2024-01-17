@@ -7,6 +7,7 @@ import { Spin } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, VerticalAlign } from "docx";
+import { parse } from 'date-fns';
 
 
 const { Text, Link } = Typography;
@@ -95,52 +96,6 @@ const Home: React.FC = () => {
         }
     }
 
-    const fetchMessages = async () => {
-        console.log(arr);
-        setMessages([]);
-        setOpenaiResult([]);
-        setIsLoading(true);
-        setIsDataFetched(true);
-        const maxRetries = 2; // Set your desired retry limit
-
-        for (let index = 0; index < arr.length; index++) {
-            let retries = 0;
-            const input = arr[index].value.trim();
-            const isLink = arr[index].type === "link";
-            const isValidInput = input.length > 0 && (!isLink || isValidUrl(input));
-
-            while (retries <= maxRetries && isValidInput) {
-                try {
-                    const payload = { inputs: [input] };
-                    const response = await axios.post('https://news-extract-app-fly.fly.dev/submit', payload);
-
-                    const isEmptyString = Object.values(response.data.parsedData).some(value => value === "");
-                    if (isEmptyString && retries < maxRetries) {
-                        retries++;
-                        continue;
-                    } else {
-                        retries = 3;
-                    } // TODO: debug. the loop is runnning even if the result is valid. also when they're multiple links input, it doesn't stop loading. 
-                    updateOpenAIResult(index, response.data.parsedData);
-                    updateMessage(index, `Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
-                    console.log(response);
-                } catch (error) {
-                    handleAxiosError(error, index, retries, maxRetries);
-                    console.log(error);
-                }
-            }
-
-            if (!isValidInput) {
-                const errorMessage = isLink ? "The link provided is not valid, please input a valid link" : "It is empty, please input a link or paste the article";
-                updateOpenAIResult(index, { date: errorMessage, mediaName: errorMessage, title: errorMessage, articleSummary: errorMessage, mediaBackgroundSummary: errorMessage });
-                updateMessage(index, errorMessage);
-            }
-
-            if (index === arr.length - 1) { setIsLoading(false); }
-        };
-    };
-
-
     //https://stackoverflow.com/questions/66469913/how-to-add-input-field-dynamically-when-user-click-on-button-in-react-js
 
     const addInput = () => {
@@ -182,6 +137,53 @@ const Home: React.FC = () => {
         const newArr = [...arr];
         newArr[index].value = e.target.value;
         setArr(newArr);
+    };
+
+    function sortResultsByDate(a: IOpenAIResult, b: IOpenAIResult): number {
+        const parseDate = (dateStr: string): Date | null => {
+            if (dateStr.includes("Unknown")) return null;
+
+            // Handle specific cases, like 'May 28th, 2023'
+            const cleanedDateStr = dateStr.replace(/(\d)(st|nd|rd|th)/, "$1");
+
+            // Try to parse date
+            const date = new Date(cleanedDateStr);
+            return isNaN(date.getTime()) ? null : date;
+        };
+
+        const dateA = parseDate(a.date);
+        const dateB = parseDate(b.date);
+
+        if (!dateA) return 1; // Assume null dates are later
+        if (!dateB) return -1;
+
+        return dateA.getTime() - dateB.getTime();
+    };
+
+    const standardizeDate = (dateStr: string): Date => {
+        if (dateStr === 'Unknown' || dateStr === '[Unknown]') {
+            // Assign a default future date for unknown dates to sort them at the end
+            return new Date('9999-12-31');
+        }
+
+        // Handling different date formats
+        const formats = [
+            'MMMM D, YYYY',  // June 21, 2023
+            'MMMM Do, YYYY', // May 28th, 2023
+            'D MMMM YYYY',   // 16 May 2023
+            // Add more formats as needed
+        ];
+
+        for (const format of formats) {
+            const parsedDate = parse(dateStr, format, new Date());
+            if (!isNaN(parsedDate.getTime())) {
+                return parsedDate;
+            }
+        }
+
+        // Fallback if none of the formats match
+        console.warn(`Unrecognized date format: ${dateStr}`);
+        return new Date('9999-12-31');
     };
 
 
@@ -326,7 +328,55 @@ const Home: React.FC = () => {
         });
     };
 
+    const fetchMessages = async () => {
+        console.log(arr);
+        setMessages([]);
+        setOpenaiResult([]);
+        setIsLoading(true);
+        setIsDataFetched(true);
+        const maxRetries = 2; // Set your desired retry limit
 
+        for (let index = 0; index < arr.length; index++) {
+            let retries = 0;
+            const input = arr[index].value.trim();
+            const isLink = arr[index].type === "link";
+            const isValidInput = input.length > 0 && (!isLink || isValidUrl(input));
+
+            while (retries <= maxRetries && isValidInput) {
+                try {
+                    const payload = { inputs: [input] };
+                    const response = await axios.post('https://news-extract-app-fly.fly.dev/submit', payload);
+
+                    const isEmptyString = Object.values(response.data.parsedData).some(value => value === "");
+                    if (isEmptyString && retries < maxRetries) {
+                        retries++;
+                        continue;
+                    } else {
+                        retries = 3;
+                    }
+                    updateOpenAIResult(index, response.data.parsedData);
+                    updateMessage(index, `Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
+                    setOpenaiResult(currentResults => {
+                        const sortedResults = [...currentResults];
+                        sortedResults.sort(sortResultsByDate);
+                        return sortedResults;
+                    });
+                    console.log(response);
+                } catch (error) {
+                    handleAxiosError(error, index, retries, maxRetries);
+                    console.log(error);
+                }
+            }
+
+            if (!isValidInput) {
+                const errorMessage = isLink ? "The link provided is not valid, please input a valid link" : "It is empty, please input a link or paste the article";
+                updateOpenAIResult(index, { date: errorMessage, mediaName: errorMessage, title: errorMessage, articleSummary: errorMessage, mediaBackgroundSummary: errorMessage });
+                updateMessage(index, errorMessage);
+            }
+
+            if (index === arr.length - 1) { setIsLoading(false); }
+        };
+    };
 
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
