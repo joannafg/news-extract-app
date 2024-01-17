@@ -7,7 +7,7 @@ import { Spin } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, VerticalAlign } from "docx";
-import { parse } from 'date-fns';
+import { parse, compareAsc } from 'date-fns';
 
 
 const { Text, Link } = Typography;
@@ -139,51 +139,27 @@ const Home: React.FC = () => {
         setArr(newArr);
     };
 
-    function sortResultsByDate(a: IOpenAIResult, b: IOpenAIResult): number {
+    function sortResultsByDate(results: IOpenAIResult[]): IOpenAIResult[] {
+        const dateFormats = ["d MMMM yyyy", "d MMM, yyyy"];
+
         const parseDate = (dateStr: string): Date | null => {
-            if (dateStr.includes("Unknown")) return null;
-
-            // Handle specific cases, like 'May 28th, 2023'
-            const cleanedDateStr = dateStr.replace(/(\d)(st|nd|rd|th)/, "$1");
-
-            // Try to parse date
-            const date = new Date(cleanedDateStr);
-            return isNaN(date.getTime()) ? null : date;
+            for (const format of dateFormats) {
+                const parsedDate = parse(dateStr, format, new Date());
+                if (!isNaN(parsedDate.getTime())) {
+                    return parsedDate;
+                }
+            }
+            return null; // Return null if no format matched
         };
 
-        const dateA = parseDate(a.date);
-        const dateB = parseDate(b.date);
-
-        if (!dateA) return 1; // Assume null dates are later
-        if (!dateB) return -1;
-
-        return dateA.getTime() - dateB.getTime();
-    };
-
-    const standardizeDate = (dateStr: string): Date => {
-        if (dateStr === 'Unknown' || dateStr === '[Unknown]') {
-            // Assign a default future date for unknown dates to sort them at the end
-            return new Date('9999-12-31');
-        }
-
-        // Handling different date formats
-        const formats = [
-            'MMMM D, YYYY',  // June 21, 2023
-            'MMMM Do, YYYY', // May 28th, 2023
-            'D MMMM YYYY',   // 16 May 2023
-            // Add more formats as needed
-        ];
-
-        for (const format of formats) {
-            const parsedDate = parse(dateStr, format, new Date());
-            if (!isNaN(parsedDate.getTime())) {
-                return parsedDate;
-            }
-        }
-
-        // Fallback if none of the formats match
-        console.warn(`Unrecognized date format: ${dateStr}`);
-        return new Date('9999-12-31');
+        return results
+            .map(result => ({ ...result, parsedDate: parseDate(result.date) }))
+            .sort((a, b) => {
+                if (!a.parsedDate) return 1;
+                if (!b.parsedDate) return -1;
+                return compareAsc(a.parsedDate, b.parsedDate);
+            })
+            .map(({ parsedDate, ...result }) => result); // Remove the parsedDate field
     };
 
 
@@ -356,11 +332,8 @@ const Home: React.FC = () => {
                     }
                     updateOpenAIResult(index, response.data.parsedData);
                     updateMessage(index, `Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
-                    setOpenaiResult(currentResults => {
-                        const sortedResults = [...currentResults];
-                        sortedResults.sort(sortResultsByDate);
-                        return sortedResults;
-                    });
+                    // const sortedResults = sortResultsByDate(openaiResult);
+                    // setOpenaiResult(sortedResults);
                     console.log(response);
                 } catch (error) {
                     handleAxiosError(error, index, retries, maxRetries);
