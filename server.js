@@ -206,11 +206,11 @@ app.post('/submit', async (req, res) => {
 
     After translating, please organize the extracted information into a clearly structured format as follows:
 
-    1. Date of the News Article: [Provide the publication date here, if available in the content; otherwise, please infer from the URL or state 'Unknown']
-    2. Media/Publication Name: [If not clear from the content, deduce the name of the media or publication from the URL: ${userData.inputs[0]}]
-    3. Article Title: [Provide the title of the news article here; if not available in the content, please infer from the article's URL]
-    4. Article Summary: [Provide a positive, concise summary of the news article here]
-    5. Background of the Media/Publication: [If not available in the content, please find and provide a positive summary about the background of the media or publication from online sources]
+    1. Date of the News Article: In the format of 17 February, 2009. Provide the publication date here, if available in the content; otherwise, please infer from the URL or state 'Unknown'. 
+    2. Media/Publication Name: If not clear from the content, deduce the name of the media or publication from the URL: ${userData.inputs[0]}. 
+    3. Article Title: Provide the title of the news article here; if not available in the content, please infer from the article's URL. 
+    4. Article Summary: Provide a positive, concise summary of the news article here. 
+    5. Background of the Media/Publication: If not available in the content, please find and provide a positive summary about the background of the media or publication from online sources. 
 
     Please ensure each piece of information is succinctly presented right after its corresponding number and label.
     `;
