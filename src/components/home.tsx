@@ -118,6 +118,8 @@ const Home: React.FC = () => {
                     if (isEmptyString && retries < maxRetries) {
                         retries++;
                         continue;
+                    } else {
+                        retries = 3;
                     } // TODO: debug. the loop is runnning even if the result is valid. also when they're multiple links input, it doesn't stop loading. 
                     updateOpenAIResult(index, response.data.parsedData);
                     updateMessage(index, `Response: ${response.data.message}. Data received: ${JSON.stringify(response.data)}`);
