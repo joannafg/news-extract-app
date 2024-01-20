@@ -8,6 +8,7 @@ import { DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, VerticalAlign } from "docx";
 import { parse, compareAsc } from 'date-fns';
+import openaiResults from 'openaiResult.json';
 
 
 const { Text, Link } = Typography;
@@ -21,6 +22,30 @@ interface IOpenAIResult {
     articleSummary: string;
     mediaBackgroundSummary: string;
 }
+
+function sortResultsByDate(results: IOpenAIResult[]): IOpenAIResult[] {
+    const dateFormats = ["d MMMM yyyy", "d MMM, yyyy"];
+
+    const parseDate = (dateStr: string): Date | null => {
+        for (const format of dateFormats) {
+            const parsedDate = parse(dateStr, format, new Date());
+            if (!isNaN(parsedDate.getTime())) {
+                return parsedDate;
+            }
+        }
+        console.log(`Failed to parse date: ${dateStr}`);
+        return null; // Return null if no format matched
+    };
+
+    return results
+        .map(result => ({ ...result, parsedDate: parseDate(result.date) }))
+        .sort((a, b) => {
+            if (!a.parsedDate) return 1;
+            if (!b.parsedDate) return -1;
+            return compareAsc(a.parsedDate, b.parsedDate);
+        })
+        .map(({ parsedDate, ...result }) => result); // Remove the parsedDate field
+};
 
 
 const Home: React.FC = () => {
@@ -138,30 +163,6 @@ const Home: React.FC = () => {
         newArr[index].value = e.target.value;
         setArr(newArr);
     };
-
-    function sortResultsByDate(results: IOpenAIResult[]): IOpenAIResult[] {
-        const dateFormats = ["d MMMM yyyy", "d MMM, yyyy"];
-
-        const parseDate = (dateStr: string): Date | null => {
-            for (const format of dateFormats) {
-                const parsedDate = parse(dateStr, format, new Date());
-                if (!isNaN(parsedDate.getTime())) {
-                    return parsedDate;
-                }
-            }
-            return null; // Return null if no format matched
-        };
-
-        return results
-            .map(result => ({ ...result, parsedDate: parseDate(result.date) }))
-            .sort((a, b) => {
-                if (!a.parsedDate) return 1;
-                if (!b.parsedDate) return -1;
-                return compareAsc(a.parsedDate, b.parsedDate);
-            })
-            .map(({ parsedDate, ...result }) => result); // Remove the parsedDate field
-    };
-
 
     const createAndDownloadDoc = () => {
         const doc = new Document({
