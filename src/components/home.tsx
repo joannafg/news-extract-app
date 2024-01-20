@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import '../index.css';
 import { Input } from 'antd';
 import { Button, Flex, Typography } from 'antd';
-import { Card, Space } from 'antd';
+import { Card, Space, Dropdown, Menu } from 'antd';
+import type { MenuProps } from 'antd';
 import { Spin } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, VerticalAlign } from "docx";
-import { parse, isValid, compareAsc } from 'date-fns';
+import { parse, isValid, compareAsc, compareDesc } from 'date-fns';
 import openaiResults from './openaiResult.json';
 
 
@@ -22,31 +23,6 @@ interface IOpenAIResult {
     articleSummary: string;
     mediaBackgroundSummary: string;
 }
-
-function sortResultsByDate(results: IOpenAIResult[]): IOpenAIResult[] {
-    const dateFormats = ["d MMMM yyyy", "d MMM, yyyy"];
-
-    const parseDate = (dateStr: string): Date | null => {
-        for (const format of dateFormats) {
-            const parsedDate = parse(dateStr, format, new Date());
-            if (!isNaN(parsedDate.getTime())) {
-                return parsedDate;
-            }
-        }
-        console.log(`Failed to parse date: ${dateStr}`);
-        return null; // Return null if no format matched
-    };
-
-    return results
-        .map(result => ({ ...result, parsedDate: parseDate(result.date) }))
-        .sort((a, b) => {
-            if (!a.parsedDate) return 1;
-            if (!b.parsedDate) return -1;
-            return compareAsc(a.parsedDate, b.parsedDate);
-        })
-        .map(({ parsedDate, ...result }) => result); // Remove the parsedDate field
-};
-
 
 const Home: React.FC = () => {
 
@@ -63,11 +39,12 @@ const Home: React.FC = () => {
     ];
 
     const [messages, setMessages] = useState<string[]>([]);
-    // const [openaiResult, setOpenaiResult] = useState<IOpenAIResult[]>([]);
-    const [openaiResult, setOpenaiResult] = useState<IOpenAIResult[]>(openaiResults);
+    const [openaiResult, setOpenaiResult] = useState<IOpenAIResult[]>([]);
+    // const [openaiResult, setOpenaiResult] = useState<IOpenAIResult[]>(openaiResults);
     const [isDataFetched, setIsDataFetched] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [arr, setArr] = useState(inputArr);
+    const [sortOption, setSortOption] = useState("ascending");
 
 
     const updateMessage = (index: number, newMessage: string) => {
@@ -349,26 +326,50 @@ const Home: React.FC = () => {
                 updateMessage(index, errorMessage);
             }
 
+            switch (sortOption) {
+                case "ascending": {
+                    sortAllDatesAscending();
+                    break;
+                }
+                case "descending": {
+                    sortAllDatesDescending();
+                    break;
+                }
+                default: {
+                    sortAllDatesAscending();
+                    break;
+                }
+            }
+
             if (index === arr.length - 1) { setIsLoading(false); }
         };
     };
 
-    // Utility function to try different date formats
-    const tryParse = (dateStr: string): Date | undefined => {
-        const formats = ["MMMM d, yyyy", "d MMMM yyyy", "d MMM, yyyy", "yyyy/MM/dd"];
-        for (const format of formats) {
-            const parsed = parse(dateStr, format, new Date());
-            if (isValid(parsed)) {
-                return parsed;
-            }
+    const monthMap: { [key: string]: number } = {
+        January: 0, February: 1, March: 2, April: 3, May: 4, June: 5,
+        July: 6, August: 7, September: 8, October: 9, November: 10, December: 11,
+        Jan: 0, Feb: 1, Mar: 2, Apr: 3, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+    };
+
+    const tryParseCustom = (dateStr: string): Date | undefined => {
+        const yearMatch = dateStr.match(/\b(19[8-9]\d|20[0-3]\d)\b/);
+        const monthMatch = dateStr.match(/\b(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/i);
+        const dayMatch = dateStr.match(/\b(3[01]|[12][0-9]|0?[1-9])(st|nd|rd|th)?\b/);
+
+        if (yearMatch && monthMatch && dayMatch) {
+            const year = parseInt(yearMatch[0]);
+            const month = monthMap[monthMatch[0]];
+            const day = parseInt(dayMatch[0]);
+
+            return new Date(year, month, day);
         }
     };
 
     // Sorting function
-    const sortResultsByDate = (results: IOpenAIResult[]): IOpenAIResult[] => {
+    const sortResultsByDateAscending = (results: IOpenAIResult[]): IOpenAIResult[] => {
         return results.sort((a, b) => {
-            const dateA = tryParse(a.date);
-            const dateB = tryParse(b.date);
+            const dateA = tryParseCustom(a.date);
+            const dateB = tryParseCustom(b.date);
 
             // Handle invalid or unknown dates by pushing them to the end
             if (!dateA) return 1;
@@ -378,15 +379,48 @@ const Home: React.FC = () => {
         });
     };
 
-    const sortTesting = () => {
+    const sortAllDatesAscending = () => {
         setIsDataFetched(true);
-        const sortedResults = sortResultsByDate(openaiResult);
-        setOpenaiResult(sortedResults);
-    }
+        setOpenaiResult(currentResults => {
+            // Create a new array instance and sort
+            const sortedResults = sortResultsByDateAscending([...currentResults]);
+            return sortedResults;
+        });
+    };
+
+    const sortAllDatesDescending = () => {
+        setIsDataFetched(true);
+        setOpenaiResult(currentResults => {
+            // Create a new array instance and sort in reverse order
+            const sortedResults = sortResultsByDateAscending([...currentResults]).reverse();
+            return sortedResults;
+        });
+    };
+
+    const handleMenuClick: MenuProps['onClick'] = (e) => {
+        if (e.key === "1") {
+            setSortOption("ascending");
+            sortAllDatesAscending();
+        } else if (e.key === "2") {
+            setSortOption("descending");
+            sortAllDatesDescending();
+        }
+    };
+
+    const menu = (
+        <Menu onClick={handleMenuClick}>
+            <Menu.Item key="1">Sort by Date Ascending</Menu.Item>
+            <Menu.Item key="2">Sort by Date Descending</Menu.Item>
+        </Menu>
+    );
+
 
 
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+            <Dropdown overlay={menu} placement="bottomLeft">
+                <Button>{sortOption === "ascending" ? "Sort by Date Ascending" : "Sort by Date Descending"}</Button>
+            </Dropdown>
             <Text type="secondary">Please include the full web address. exp. https://...</Text>
             {arr.map((item, i) => {
                 return (
@@ -418,11 +452,13 @@ const Home: React.FC = () => {
             })}
             <Button type="primary" size={"middle"} onClick={(e) => addInput()}>Add New Link</Button>
             <Button type="primary" size={"middle"} onClick={addTextArea}>Add New Article</Button>
-            {/* <Button type="primary" size={"middle"} onClick={(e) => fetchMessages()}>Submit</Button> */}
-            <Button type="primary" size={"middle"} onClick={sortTesting}>Sort</Button>
+            <Button type="primary" size={"middle"} onClick={(e) => fetchMessages()}>Submit</Button>
+            {/* <Button type="primary" size={"middle"} onClick={sortAllDatesAscending}>sortAllDatesAscending</Button>
+            <Button type="primary" size={"middle"} onClick={sortAllDatesDescending}>sortAllDatesDescending</Button> */}
             {isLoading && <Spin size="large" />}
             {isDataFetched && openaiResult.map((item, index) => (
                 <>
+                    {console.log(openaiResult)}
                     {index === 0 && (
                         <div
                             style={{
