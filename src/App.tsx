@@ -13,32 +13,13 @@ function App() {
         token: {
           // Seed Token
           colorPrimary: '#889900',
-          borderRadius: 2,
+          borderRadius: 10,
 
           // Alias Token
           colorBgContainer: '#ffffff',
         },
       }}
     >
-      {/* <div className='gradient_background'> */}
-
-      {/* <Space direction="vertical" size="large" style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        flexDirection: 'column',
-        minHeight: '100vh',
-        overflow: 'auto',
-        padding: '0 20px',
-      }}> */}
-      {/* <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        flexDirection: 'column'
-      }}> */}
       <div style={{
         display: 'flex',
         justifyContent: 'center',
@@ -47,6 +28,7 @@ function App() {
         minHeight: '100vh',
         overflow: 'auto',
         padding: '20px 20px',
+        background: 'linear-gradient(#bec489, #ffffff)'
       }}>
         <div style={{ width: '50%' }}>
           <Home />
@@ -62,10 +44,7 @@ function App() {
           }}
         />
         <Text type="secondary">©2024 Avocado LLC</Text>
-        {/* </div> */}
-        {/* </Space> */}
       </div>
-      {/* </div> */}
     </ConfigProvider>
   );
 }

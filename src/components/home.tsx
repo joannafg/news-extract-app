@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import '../index.css';
 import { Input } from 'antd';
 import { Button, Flex, Typography } from 'antd';
-import { Card, Space, Dropdown, Menu } from 'antd';
+import { Card, Space, Dropdown, Menu, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import { Spin } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, InfoCircleOutlined, DownOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, VerticalAlign } from "docx";
 import { parse, isValid, compareAsc, compareDesc } from 'date-fns';
@@ -418,84 +418,105 @@ const Home: React.FC = () => {
 
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-            <Dropdown overlay={menu} placement="bottomLeft">
-                <Button>{sortOption === "ascending" ? "Sort by Date Ascending" : "Sort by Date Descending"}</Button>
-            </Dropdown>
-            <Text type="secondary">Please include the full web address. exp. https://...</Text>
-            {arr.map((item, i) => {
-                return (
-                    <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
-                        {item.type === "link" ? (
-                            <Input
-                                onChange={(e) => handleChange(e, i)}
-                                value={item.value}
-                                id={i.toString()}
-                                size="middle"
-                                style={{ width: 400 }}
-                                placeholder="Paste your link here"
-                            />
-                        ) : (
-                            <TextArea
-                                onChange={(e) => handleChange(e, i)}
-                                value={item.value}
-                                id={i.toString()}
-                                size="middle"
-                                style={{ width: 400 }}
-                                placeholder="Paste your article here"
-                                maxLength={3000}
-                                autoSize={{ minRows: 3, maxRows: 6 }}
-                            />
-                        )}
-                        <Button type="primary" icon={<DeleteOutlined />} onClick={(e) => deleteInput(e, i)} size={"middle"} />
-                    </Space >
-                );
-            })}
-            <Button type="primary" size={"middle"} onClick={(e) => addInput()}>Add New Link</Button>
-            <Button type="primary" size={"middle"} onClick={addTextArea}>Add New Article</Button>
-            <Button type="primary" size={"middle"} onClick={(e) => fetchMessages()}>Submit</Button>
+            <Card style={{ boxShadow: "5px 8px 24px 5px rgba(190, 196, 137, 0.6)" }}>
+                <Space direction="vertical" size="middle" style={{ display: 'flex' }} >
+                    <Space direction="horizontal" >
+                        <div style={{ position: 'absolute', top: 0, right: 0, padding: '10px' }}>
+                            <Tooltip title="Please include the full web address. exp. https://..." color={'#889900'} >
+                                <InfoCircleOutlined />
+                            </Tooltip>
+                        </div>
+                        <Dropdown overlay={menu} placement="bottomLeft" arrow={{ pointAtCenter: true }}>
+                            <Space style={{ color: "#6a7800" }}>{sortOption === "ascending" ? "Sort by Date Ascending" : "Sort by Date Descending"}<DownOutlined /></Space>
+                        </Dropdown>
+                    </Space>
+
+                    {/* <Text type="secondary">Please include the full web address. exp. https://...</Text> */}
+                    {arr.map((item, i) => {
+                        return (
+                            <Flex justify="space-between" align="center" style={{ width: '100%' }}>
+                                {item.type === "link" ? (
+                                    <Input
+                                        onChange={(e) => handleChange(e, i)}
+                                        value={item.value}
+                                        id={i.toString()}
+                                        size="middle"
+                                        style={{ flexGrow: 1, marginRight: '10px' }} // Adjusted style
+                                        placeholder="Paste your link here"
+                                    />
+                                ) : (
+                                    <TextArea
+                                        onChange={(e) => handleChange(e, i)}
+                                        value={item.value}
+                                        id={i.toString()}
+                                        size="middle"
+                                        style={{ flexGrow: 1, marginRight: '10px' }} // Adjusted style
+                                        placeholder="Paste your article here"
+                                        maxLength={3000}
+                                        autoSize={{ minRows: 3, maxRows: 6 }}
+                                    />
+                                )}
+                                <Button type="primary" icon={<DeleteOutlined />} onClick={(e) => deleteInput(e, i)} size={"middle"} />
+                            </Flex>
+                        );
+                    })}
+                    <Space direction="horizontal" >
+                        <Button type="primary" size={"middle"} onClick={(e) => addInput()}>Add New Link</Button>
+                        <Button type="primary" size={"middle"} onClick={addTextArea}>Add New Article</Button>
+                    </Space>
+                    <div></div>
+                    <div style={{ position: 'absolute', bottom: 0, right: 0, padding: '10px' }}>
+                        <Button type="primary" size={"middle"} loading={isLoading} onClick={(e) => fetchMessages()}>Submit</Button>
+                    </div>
+
+
+                </Space>
+            </Card >
             {/* <Button type="primary" size={"middle"} onClick={sortAllDatesAscending}>sortAllDatesAscending</Button>
             <Button type="primary" size={"middle"} onClick={sortAllDatesDescending}>sortAllDatesDescending</Button> */}
             {isLoading && <Spin size="large" />}
-            {isDataFetched && openaiResult.map((item, index) => (
-                <>
-                    {console.log(openaiResult)}
-                    {index === 0 && (
-                        <div
-                            style={{
-                                borderColor: '#889900',
-                                borderStyle: 'dotted',
-                                borderWidth: '1px',
-                                width: 600,
-                                height: 'auto',
-                            }}
-                        />
-                    )}
-                    {item && item.date && item.mediaName && item.title ? (
-                        <>
-                            <Text type="secondary">
-                                Article <strong>{index + 1}</strong>'s Extraction Summary
-                                <br></br>
-                                This news article publication date is <strong>{item.date}</strong>.
-                                Name of the media is <strong>{item.mediaName}</strong>.
-                                Title of the news article is <strong>{item.title}</strong>.
-                                <br></br>
-                                Here is a summary of news article: <strong>{item.articleSummary}</strong>
-                                <br></br>
-                                Here is a summary on the background of the media: <strong>{item.mediaBackgroundSummary}</strong>
-                            </Text>
-                        </>
-                    ) : (
-                        <Text type="danger">Error: Link {index + 1}</Text>
-                    )}
-                    {index === openaiResult.length - 1 && (
-                        <>
-                            <Button type="primary" onClick={createAndDownloadDoc}>Download Result as A Word Document</Button>
-                            <div style={{ height: '20px' }} />
-                        </>
-                    )}
-                </>
+            {
+                isDataFetched && openaiResult.map((item, index) => (
+                    <>
+                        {console.log(openaiResult)}
+                        {index === 0 && (
+                            <div
+                                style={{
+                                    borderColor: '#889900',
+                                    borderStyle: 'dotted',
+                                    borderWidth: '1px',
+                                    width: '100%',
+                                    height: 'auto',
+                                }}
+                            />
+                        )}
+                        {item && item.date && item.mediaName && item.title ? (
+                            <>
+                                <Text type="secondary">
+                                    Article <strong>{index + 1}</strong>'s Extraction Summary
+                                    <br></br>
+                                    This news article publication date is <strong>{item.date}</strong>.
+                                    Name of the media is <strong>{item.mediaName}</strong>.
+                                    Title of the news article is <strong>{item.title}</strong>.
+                                    <br></br>
+                                    Here is a summary of news article: <strong>{item.articleSummary}</strong>
+                                    <br></br>
+                                    Here is a summary on the background of the media: <strong>{item.mediaBackgroundSummary}</strong>
+                                </Text>
+                            </>
+                        ) : (
+                            <Text type="danger">Error: Link {index + 1}</Text>
+                        )}
+                        {index === openaiResult.length - 1 && (
+                            <div style={{ textAlign: 'right' }}>
+                                <Button type="primary" onClick={createAndDownloadDoc}>Download Result as A Word Document</Button>
+                                <div style={{ height: '20px' }} />
+                            </div>
+                        )}
+                    </>
 
-            ))}
+                ))
+            }
         </Space >);
 };
 
