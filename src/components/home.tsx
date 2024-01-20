@@ -7,8 +7,8 @@ import { Spin } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, VerticalAlign } from "docx";
-import { parse, compareAsc } from 'date-fns';
-import openaiResults from 'openaiResult.json';
+import { parse, isValid, compareAsc } from 'date-fns';
+import openaiResults from './openaiResult.json';
 
 
 const { Text, Link } = Typography;
@@ -63,7 +63,8 @@ const Home: React.FC = () => {
     ];
 
     const [messages, setMessages] = useState<string[]>([]);
-    const [openaiResult, setOpenaiResult] = useState<IOpenAIResult[]>([]);
+    // const [openaiResult, setOpenaiResult] = useState<IOpenAIResult[]>([]);
+    const [openaiResult, setOpenaiResult] = useState<IOpenAIResult[]>(openaiResults);
     const [isDataFetched, setIsDataFetched] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [arr, setArr] = useState(inputArr);
@@ -352,6 +353,38 @@ const Home: React.FC = () => {
         };
     };
 
+    // Utility function to try different date formats
+    const tryParse = (dateStr: string): Date | undefined => {
+        const formats = ["MMMM d, yyyy", "d MMMM yyyy", "d MMM, yyyy", "yyyy/MM/dd"];
+        for (const format of formats) {
+            const parsed = parse(dateStr, format, new Date());
+            if (isValid(parsed)) {
+                return parsed;
+            }
+        }
+    };
+
+    // Sorting function
+    const sortResultsByDate = (results: IOpenAIResult[]): IOpenAIResult[] => {
+        return results.sort((a, b) => {
+            const dateA = tryParse(a.date);
+            const dateB = tryParse(b.date);
+
+            // Handle invalid or unknown dates by pushing them to the end
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+
+            return compareAsc(dateA, dateB);
+        });
+    };
+
+    const sortTesting = () => {
+        setIsDataFetched(true);
+        const sortedResults = sortResultsByDate(openaiResult);
+        setOpenaiResult(sortedResults);
+    }
+
+
     return (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
             <Text type="secondary">Please include the full web address. exp. https://...</Text>
@@ -385,7 +418,8 @@ const Home: React.FC = () => {
             })}
             <Button type="primary" size={"middle"} onClick={(e) => addInput()}>Add New Link</Button>
             <Button type="primary" size={"middle"} onClick={addTextArea}>Add New Article</Button>
-            <Button type="primary" size={"middle"} onClick={(e) => fetchMessages()}>Submit</Button>
+            {/* <Button type="primary" size={"middle"} onClick={(e) => fetchMessages()}>Submit</Button> */}
+            <Button type="primary" size={"middle"} onClick={sortTesting}>Sort</Button>
             {isLoading && <Spin size="large" />}
             {isDataFetched && openaiResult.map((item, index) => (
                 <>
