@@ -24,6 +24,8 @@ interface IOpenAIResult {
     mediaBackgroundSummary: string;
 }
 
+//TODO: store the 20 most recent results in cookie. search the cookie first before submitting a request to gpt. 
+//TODO: check if the website is srapable before clicking submit. 
 const Home: React.FC = () => {
 
     const uid = function () {
